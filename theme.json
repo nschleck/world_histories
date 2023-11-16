@@ -64,6 +64,20 @@
         }        
     },
 
+    "@tick_label":
+    {
+        "colours":
+        {
+            "normal_text":"#FFFFFF"
+        },
+
+        "misc":
+        {
+            "text_shadow_size":"0",
+            "text_horiz_alignment":"left"
+        }        
+    },
+
     "panel":
     {
         "colours":
@@ -80,6 +94,36 @@
             "shadow_width": "10"
         }
     },
+
+    "@tick_panel":
+     {
+        "colours":
+        {
+            "dark_bg":"#FFFFFF"
+        },
+
+        "misc":
+         {
+             "shape": "rounded_rectangle",
+             "shape_corner_radius": "1",
+             "shadow_width": "1"
+         }
+    },
+
+    "@scale_panel":
+     {    
+        "colours":
+        {
+            "dark_bg":"#362a52"
+        },
+
+        "misc":
+         {
+             "shape": "rounded_rectangle",
+             "shape_corner_radius": "10",
+             "shadow_width": "10"
+         }
+    },  
 
     "selection_list":
     {

@@ -17,7 +17,7 @@ class GUI_TopBar:
         self.col = [20,200,400,590,780,970]
 
         self.date_start_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pyg.Rect((self.col[0],self.row[1]),(150,30)),
-                                                initial_text="0",
+                                                initial_text="1000 BCE",
                                                 manager=self.manager,
                                                 container=self.panel)
         self.date_end_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pyg.Rect((self.col[1],self.row[1]),(150,30)),
@@ -37,22 +37,26 @@ class GUI_TopBar:
                                                 item_list=['All'] + tagDict["type"],
                                                 allow_multi_select=True,
                                                 manager=self.manager,
-                                                container=self.panel)
+                                                container=self.panel,
+                                                default_selection='All')
         self.era_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[3],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["era"],
                                                 allow_multi_select=True,
                                                 manager=self.manager,
-                                                container=self.panel)
+                                                container=self.panel,
+                                                default_selection='All')
         self.culture_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[4],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["culture"],
                                                 allow_multi_select=True,
                                                 manager=self.manager,
-                                                container=self.panel)
+                                                container=self.panel,
+                                                default_selection='All')
         self.region_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[5],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["region"],
                                                 allow_multi_select=True,
                                                 manager=self.manager,
-                                                container=self.panel)
+                                                container=self.panel,
+                                                default_selection='All')
 
     def getEventsByTag(self):
         selected_events = []
@@ -81,9 +85,38 @@ class GUI_ScrollArea:
 
         self.width = SCREEN_WIDTH*2
         self.height = SCREEN_HEIGHT-self.topbar.height
-        self.xpos = self.topbar.height
+        self.ypos = self.topbar.height
 
-        self.area = pygame_gui.elements.UIScrollingContainer(relative_rect=pyg.Rect((0,self.xpos),(SCREEN_WIDTH,self.height)),
-                                                       manager=self.manager)
+        self.area = pygame_gui.elements.UIScrollingContainer(relative_rect=pyg.Rect((0,self.ypos),(SCREEN_WIDTH,self.height)),
+                                                             manager=self.manager)
         
         self.area.set_scrollable_area_dimensions((self.width,self.height))
+
+        self.scale_height = 50
+        self.scale_panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,(self.scale_height*-1)+5),(self.width,self.scale_height)),
+                                                             manager=self.manager,
+                                                             anchors={'bottom': 'bottom'},
+                                                             object_id=pygame_gui.core.ObjectID(class_id='@scale_panel'),
+                                                             container = self.area)
+        
+    def create_ticks(self,date_list,px_list):
+        for i in range(len(date_list)):
+            pos_x = px_list[i]
+            if date_list[i] == 0:
+                tick_height = 40
+            else:
+                tick_height = 20
+
+            tick_mark = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((pos_x,(tick_height+10)*-1),(5,tick_height)),
+                                            manager=self.manager,
+                                            anchors={'bottom': 'bottom'},
+                                            container=self.area,
+                                            object_id=pygame_gui.core.ObjectID(class_id='@tick_panel'))
+            label = dateIntToStr(date_list[i])
+            if not i == len(date_list) - 1:
+                tick_label = pygame_gui.elements.UILabel(relative_rect=pyg.Rect((pos_x+10,-32),(200,25)),
+                                                        text=label,
+                                                        manager=self.manager,
+                                                        anchors={'bottom': 'bottom'},
+                                                        container=self.area,
+                                                        object_id=pygame_gui.core.ObjectID(class_id='@tick_label'))

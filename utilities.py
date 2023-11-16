@@ -25,7 +25,7 @@ class WorldEvent:
 
     def __str__(self) -> str:
         if self.desc:
-            return(f"{self.name}: {dateFormatToDate(self.date)}\n"
+            return(f"{self.name}: {dateIntToStr(self.date)}\n"
                     f"\t{self.desc} \n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
@@ -33,7 +33,7 @@ class WorldEvent:
                     f"\tRegion: {self.regionTag}\n"
             )
         else:
-            return(f"{self.name}: {dateFormatToDate(self.date)}\n"
+            return(f"{self.name}: {dateIntToStr(self.date)}\n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
@@ -48,7 +48,7 @@ class WorldSpan(WorldEvent):
 
     def __str__(self) -> str:
         if self.desc:
-            return(f"{self.name}: {dateFormatToDate(self.spanStart)} to {dateFormatToDate(self.spanEnd)}\n"
+            return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}\n"
                     f"\t{self.desc}\n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
@@ -56,7 +56,7 @@ class WorldSpan(WorldEvent):
                     f"\tRegion: {self.regionTag}\n"
             )
         else:
-            return(f"{self.name}: {dateFormatToDate(self.spanStart)} to {dateFormatToDate(self.spanEnd)}\n"
+            return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}\n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
@@ -65,9 +65,9 @@ class WorldSpan(WorldEvent):
      
 #### Utilities ####
 
-def dateFormatToDate(date):
-
+def dateIntToStr(date):
     #converts int date to readable date format
+    # e.g. -20000 -> 20,000 BCE
     if date >= 0:
         return f"{date} CE"
     elif date > -10000:
@@ -85,8 +85,10 @@ def dateFormatToDate(date):
         date = '{:.1f}'.format(date / -1000000000)
         return f"{date} BYA"
 
-def dateFormatToInt(date):
+def dateStrToInt(date):
     #converts readable date format to int date
+    #e.g. 20,000 BCE -> -20000
+    #TODO fix lazy code here, handle input
     number, suffix = date.split(" ")
     if suffix == "CE":
         return int(number)
