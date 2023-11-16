@@ -27,6 +27,35 @@
         }
     },
 
+    "horizontal_scroll_bar":
+    {
+        "misc":
+        {
+            "shape":"rounded_rectangle",
+            "shape_corner_radius":"7",
+            "border_width":"0",
+            "enable_arrow_buttons":"0"
+        }        
+    },
+
+    "horizontal_scroll_bar.button":
+    {
+        "misc":
+        {
+           "border_width": "1"
+        }
+    },
+
+    "horizontal_scroll_bar.#sliding_button":
+    {
+        "misc":
+        {
+            "shape":"rounded_rectangle",
+            "shape_corner_radius":"7",
+            "border_width": "1"
+        }
+    },
+
     "label":
     {
         "misc":
@@ -80,6 +109,35 @@
             "shape": "rectangle",
             "border_width": "0",
             "shadow_width": "0"
+        }
+    },
+
+    "vertical_scroll_bar":
+    {
+        "misc":
+        {
+            "shape":"rounded_rectangle",
+            "shape_corner_radius":"7",
+            "border_width":"0",
+            "enable_arrow_buttons":"0"
+        }        
+    },
+
+    "vertical_scroll_bar.button":
+    {
+        "misc":
+        {
+           "border_width": "1"
+        }
+    },
+
+    "vertical_scroll_bar.#sliding_button":
+    {
+        "misc":
+        {
+            "shape":"rounded_rectangle",
+            "shape_corner_radius":"7",
+            "border_width": "1"
         }
     }
 

@@ -115,23 +115,21 @@ def tagChecker(list):
             else:
                 print(f"{event.name}: unused tag - {tag}")
 
-#### Main Functions ####
-def testEvents():
-    #creates class instances for all events / spans
-    
-    #Astrological / Geological / Early Life
-    e1 = WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
-    e2 = WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
-    e3 = WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
-    e4 = WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
-    e5 = WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
-    e6 = WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
+#### Events ####
 
-    #Early Humans
+#Astrological / Geological / Early Life
+e1 = WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
+e2 = WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
+e3 = WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
+e4 = WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
+e5 = WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
+e6 = WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
 
-    #Classical Antiquity
+#Early Humans
 
-    #Middle Ages
-    ey = WorldEvent("Western Roman Empire Falls", 476, ["People","War","Antiquity","Middle Ages","Roman","Mediterranean","Western Europe"],desc="This marks the beginning of the Middle Ages")
+#Classical Antiquity
 
-    #Modern
+#Middle Ages
+ey = WorldEvent("Western Roman Empire Falls", 476, ["People","War","Antiquity","Middle Ages","Roman","Mediterranean","Western Europe"],desc="This marks the beginning of the Middle Ages")
+
+#Modern
