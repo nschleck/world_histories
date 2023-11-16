@@ -5,8 +5,10 @@ from settings import *
 from utilities import *
 
 #UI TOPBAR Object
-class UI_TopBar:
+class GUI_TopBar:
     def __init__(self, manager) -> None:
+        self.manager = manager
+        
         self.height = 100
         self.panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,0),(SCREEN_WIDTH,self.height)),
                                          manager=manager)
@@ -16,40 +18,40 @@ class UI_TopBar:
 
         self.date_start_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pyg.Rect((self.col[0],self.row[1]),(150,30)),
                                                 initial_text="0",
-                                                manager=manager,
+                                                manager=self.manager,
                                                 container=self.panel)
         self.date_end_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pyg.Rect((self.col[1],self.row[1]),(150,30)),
                                               initial_text="2000 CE",
-                                              manager=manager,
+                                              manager=self.manager,
                                               container=self.panel)
         self.label_date_start = pygame_gui.elements.UILabel(relative_rect=pyg.Rect((self.col[0],self.row[0]),(150,50)),
                                                text='Start Date',
-                                               manager=manager,
+                                               manager=self.manager,
                                                container=self.panel)
         self.label_date_end = pygame_gui.elements.UILabel(relative_rect=pyg.Rect((self.col[1],self.row[0]),(150,50)),
                                                text='End Date',
-                                               manager=manager,
+                                               manager=self.manager,
                                                container=self.panel)
 
         self.type_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[2],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["type"],
                                                 allow_multi_select=True,
-                                                manager=manager,
+                                                manager=self.manager,
                                                 container=self.panel)
         self.era_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[3],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["era"],
                                                 allow_multi_select=True,
-                                                manager=manager,
+                                                manager=self.manager,
                                                 container=self.panel)
         self.culture_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[4],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["culture"],
                                                 allow_multi_select=True,
-                                                manager=manager,
+                                                manager=self.manager,
                                                 container=self.panel)
         self.region_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[5],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["region"],
                                                 allow_multi_select=True,
-                                                manager=manager,
+                                                manager=self.manager,
                                                 container=self.panel)
 
     def getEventsByTag(self):
@@ -71,6 +73,17 @@ class UI_TopBar:
 
         return selected_events
 
-'''class UI_ScrollArea:
-    def __init__(self,height) -> None:
-        self.height = height,'''
+class GUI_ScrollArea:
+    def __init__(self, topbar, manager) -> None:
+        self.manager = manager
+        
+        self.topbar = topbar
+
+        self.width = SCREEN_WIDTH*2
+        self.height = SCREEN_HEIGHT-self.topbar.height
+        self.xpos = self.topbar.height
+
+        self.area = pygame_gui.elements.UIScrollingContainer(relative_rect=pyg.Rect((0,self.xpos),(SCREEN_WIDTH,self.height)),
+                                                       manager=self.manager)
+        
+        self.area.set_scrollable_area_dimensions((self.width,self.height))

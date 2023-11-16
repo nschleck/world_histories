@@ -16,14 +16,9 @@ pyg.display.set_icon(programIcon)
 manager = pygame_gui.UIManager((SCREEN_WIDTH,SCREEN_HEIGHT), 'theme.json')
 clock = pyg.time.Clock()
 
-#Create UI Elements
-UI_topbar = UI_TopBar(manager)
-
-scroll_area_height = SCREEN_HEIGHT-UI_topbar.height
-scroll_area = pygame_gui.elements.UIScrollingContainer(relative_rect=pyg.Rect((0,UI_topbar.height),(SCREEN_WIDTH,scroll_area_height)),
-                                                       manager=manager)
-
-scroll_area.set_scrollable_area_dimensions((SCREEN_WIDTH*2,scroll_area_height))
+#Create GUI Elements
+topbar = GUI_TopBar(manager)
+scroll_area = GUI_ScrollArea(topbar, manager)
 
 
 #Testing objects
@@ -32,7 +27,7 @@ Test_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((0,0),(150,50)
                                            tool_tip_text="try me!",
                                            manager=manager,
                                            anchors={'center': 'center'},
-                                           container=scroll_area)
+                                           container=scroll_area.area)
 def test_button(events):
     for event in events:
         print(event)
@@ -42,7 +37,7 @@ def test_button(events):
 while True:
     dt = clock.tick(60)/1000.0   
     
-    display_events = UI_topbar.getEventsByTag()
+    display_events = topbar.getEventsByTag()
 
     #EVENT LOOP
     for event in pyg.event.get():
