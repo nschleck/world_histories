@@ -18,7 +18,7 @@ clock = pyg.time.Clock()
 #Create World Events List
 testEvents()
 
-#CONSTRUCT UI TOPBAR
+#UI TOPBAR Object
 class UI_TopBar:
     def __init__(self) -> None:
         self.panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,0),(SCREEN_WIDTH,100)),
@@ -65,29 +65,43 @@ class UI_TopBar:
                                                 manager=manager,
                                                 container=self.panel)
 
-test_button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((0,0),(150,50)),
+    def getEventsByTag(self):
+        selected_events = []
+        for worldEvent in worldEvents:
+            common_type_tags = list(set(worldEvent.typeTag).intersection(self.type_selector.get_multi_selection()))
+            if len(common_type_tags) == 0 and "All" not in self.type_selector.get_multi_selection():
+                continue
+            common_era_tags = list(set(worldEvent.eraTag).intersection(self.era_selector.get_multi_selection()))
+            if len(common_era_tags) == 0 and "All" not in self.era_selector.get_multi_selection():
+                continue
+            common_culture_tags = list(set(worldEvent.cultureTag).intersection(self.culture_selector.get_multi_selection()))
+            if len(common_culture_tags) == 0 and "All" not in self.culture_selector.get_multi_selection():
+                continue
+            common_region_tags = list(set(worldEvent.regionTag).intersection(self.region_selector.get_multi_selection()))
+            if len(common_region_tags) == 0 and "All" not in self.region_selector.get_multi_selection():
+                continue
+            selected_events.append(worldEvent)
+
+        return selected_events
+
+#Testing objects
+Test_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((0,0),(150,50)),
                                            text="print dates",
                                            tool_tip_text="try me!",
                                            manager=manager,
                                            anchors={'center': 'center'})
-
-def getEventsByTag(ui_topbar):
-    selected_events = []
-    for worldEvent in worldEvents:
-        common_tags = list(set(worldEvent.typeTag).intersection(ui_topbar.type_selector.get_multi_selection()))
-        if len(common_tags) > 0 or "All" in ui_topbar.type_selector.get_multi_selection():
-            selected_events.append(worldEvent)
-    return selected_events
+def test_button(events):
+    for event in events:
+        print(event)
 
 #Create UI Elements
 UI_topbar = UI_TopBar()
-
 
 #MAIN APP LOOP
 while True:
     dt = clock.tick(60)/1000.0   
     
-    display_events = getEventsByTag(UI_topbar)
+    display_events = UI_topbar.getEventsByTag()
 
     #EVENT LOOP
     for event in pyg.event.get():
@@ -98,10 +112,8 @@ while True:
             pyg.quit()
             sys.exit()
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if event.ui_element == test_button:
-                #print(str(date_start) + " to " + str(date_end))
-                for display_event in display_events:
-                    print(display_event)
+            if event.ui_element == Test_Button:
+                test_button(display_events)
 
         
         manager.process_events(event)
