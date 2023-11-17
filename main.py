@@ -19,6 +19,7 @@ clock = pyg.time.Clock()
 #Create GUI Elements
 topbar = GUI_TopBar(manager)
 scroll_area = GUI_ScrollArea(topbar, manager)
+scale_bar = GUI_ScaleBar(topbar,scroll_area,manager)
 
 
 #TODOs
@@ -26,48 +27,12 @@ scroll_area = GUI_ScrollArea(topbar, manager)
 #TODO refresh/update to get rid of old elements
 #TODO handle timespan objects in draw class
 #TODO filter active events by selected date range
-#TODO adjust scale endposts to be inclusive
 
 #Testing -- Create UI Scale
 Scale_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150,50)),
                                            text="create scale",
                                            tool_tip_text="try me!",
                                            manager=manager)
-
-def date_range():
-    #return date range
-    try:
-        start = dateStrToInt(topbar.date_start_entry.get_text())
-        end = dateStrToInt(topbar.date_end_entry.get_text())
-        return end - start
-    except:
-        return 0
-
-def create_date_scale():
-    start = dateStrToInt(topbar.date_start_entry.get_text())
-    end = dateStrToInt(topbar.date_end_entry.get_text())
-    int_range = date_range()
-    ticks = []
-
-    ideal_spacing = int_range / 15
-    available_spacing = [5,10,50,100,200,500,1000,5000,10000,50000,100000,500000,1000000,5000000,1000000,5000000,10000000,50000000,100000000,500000000,1000000000]
-    available_spacing.append(ideal_spacing)
-    available_spacing.sort()
-    index = available_spacing.index(ideal_spacing)
-
-    tick_spacing = int(available_spacing[index+1])
-
-    if start < 0:        
-        start_tick = ((start % -tick_spacing) - start) * -1 #TODO adjust scale endposts to be inclusive
-    else:
-        start_tick = start - (start % tick_spacing) + tick_spacing #TODO adjust scale endposts to be inclusive
-    
-    tick = start_tick
-    while tick < end:
-        ticks.append(tick)        
-        tick += tick_spacing
-
-    return ticks
 
 buffer = 20
 
@@ -97,6 +62,7 @@ Objects_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,150),(1
                                            tool_tip_text="try me!",
                                            manager=manager)
 
+drawn_events = []
 def draw_events(event_list,ticks,factor,buffer_px):
     event_width = 30
     center_offset = int(event_width / 2)
@@ -111,6 +77,15 @@ def draw_events(event_list,ticks,factor,buffer_px):
                                                     anchors={'bottom': 'bottom'},
                                                     object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
                                                     container=scroll_area.area)
+        drawn_events.append(event_graphic)
+def reset_drawn_events():
+    for event in drawn_events:
+        event.kill()
+
+Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,200),(150,50)),
+                                           text="reset",
+                                           tool_tip_text="try me!",
+                                           manager=manager)
 
 
 #Initialize some variables
@@ -130,18 +105,22 @@ while True:
             sys.exit()
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == Scale_Button:
-                ticks = create_date_scale()
+                ticks = scale_bar.create_date_scale()
                 print(ticks)
 
                 remap_factor = calculate_remap_scale(ticks)
                 ticks_px = create_scale_px_list(ticks,remap_factor)
                 print(ticks_px)
 
-                scroll_area.create_ticks(ticks,ticks_px)
+                scale_bar.draw_ticks(ticks,ticks_px)
             if event.ui_element == Objects_Button:
                 active_events = topbar.getEventsByTag()
                 #TODO filter active events by selected date range
                 draw_events(active_events,ticks,remap_factor,buffer)
+            if event.ui_element == Reset_Button:
+                #TODO : reset, delete existing scale and objects
+                scale_bar.reset()
+                reset_drawn_events()
 
         manager.process_events(event)
 

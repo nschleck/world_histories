@@ -79,8 +79,7 @@ class GUI_TopBar:
 
 class GUI_ScrollArea:
     def __init__(self, topbar, manager) -> None:
-        self.manager = manager
-        
+        self.manager = manager        
         self.topbar = topbar
 
         self.width = SCREEN_WIDTH*2
@@ -92,14 +91,45 @@ class GUI_ScrollArea:
         
         self.area.set_scrollable_area_dimensions((self.width,self.height))
 
-        self.scale_height = 50
-        self.scale_panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,(self.scale_height*-1)+5),(self.width,self.scale_height)),
+class GUI_ScaleBar:
+    def __init__(self,topbar,scroll_area,manager) -> None:
+        self.manager = manager
+        self.topbar = topbar
+        self.scroll_area = scroll_area
+        
+        self.width = self.scroll_area.width
+        self.height = 50
+        self.scale_panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,(self.height*-1)+5),(self.width,self.height)),
                                                              manager=self.manager,
                                                              anchors={'bottom': 'bottom'},
                                                              object_id=pygame_gui.core.ObjectID(class_id='@scale_panel'),
-                                                             container = self.area)
+                                                             container = self.scroll_area.area)
         
-    def create_ticks(self,date_list,px_list):
+        self.UIticks = []
+        self.UItick_labels = []
+
+    def create_date_scale(self):
+        start = dateStrToInt(self.topbar.date_start_entry.get_text())
+        end = dateStrToInt(self.topbar.date_end_entry.get_text())
+        int_range = end - start
+        ticks = []
+
+        ideal_spacing = int_range / 15
+        available_spacing = [5,10,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000,5000000,1000000,5000000,10000000,50000000,100000000,500000000,1000000000]
+        available_spacing.append(ideal_spacing)
+        available_spacing.sort()
+        index = available_spacing.index(ideal_spacing)
+        tick_spacing = int(available_spacing[index+1])     
+        
+        start_tick = start - (start % tick_spacing)
+        tick = start_tick-tick_spacing
+        while tick < end:
+            tick += tick_spacing
+            ticks.append(tick)  
+
+        return ticks
+
+    def draw_ticks(self,date_list,px_list):
         for i in range(len(date_list)):
             pos_x = px_list[i]
             if date_list[i] == 0:
@@ -110,13 +140,21 @@ class GUI_ScrollArea:
             tick_mark = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((pos_x,(tick_height+10)*-1),(5,tick_height)),
                                             manager=self.manager,
                                             anchors={'bottom': 'bottom'},
-                                            container=self.area,
+                                            container=self.scroll_area.area,
                                             object_id=pygame_gui.core.ObjectID(class_id='@tick_panel'))
+            self.UIticks.append(tick_mark)
             label = dateIntToStr(date_list[i])
             if not i == len(date_list) - 1:
                 tick_label = pygame_gui.elements.UILabel(relative_rect=pyg.Rect((pos_x+10,-32),(200,25)),
                                                         text=label,
                                                         manager=self.manager,
                                                         anchors={'bottom': 'bottom'},
-                                                        container=self.area,
+                                                        container=self.scroll_area.area,
                                                         object_id=pygame_gui.core.ObjectID(class_id='@tick_label'))
+                self.UItick_labels.append(tick_label)
+
+    def reset(self):
+        for tick_mark in self.UIticks:
+            tick_mark.kill()
+        for tick_label in self.UItick_labels:
+            tick_label.kill()
