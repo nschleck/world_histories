@@ -4,7 +4,7 @@ worldEvents = []
 tagDict = {
     "type": ["Astrological","Geological","Scientific","Life","People","Invention","War"],
     "era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
-    "culture": ["Greek","Roman","temp"],
+    "culture": ["Greek","Roman","Polynesian"],
     "region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
 }
@@ -120,18 +120,21 @@ def tagChecker(list):
 #### Events ####
 
 #Astrological / Geological / Early Life
-e1 = WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
-e2 = WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
-e3 = WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
-e4 = WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
-e5 = WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
-e6 = WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
+#e1 = WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
+#e2 = WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
+#e3 = WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
+#e4 = WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
+#e5 = WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
+#e6 = WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
 
 #Early Humans
 
 #Classical Antiquity
 
 #Middle Ages
-ey = WorldEvent("Western Roman Empire Falls", 476, ["People","War","Antiquity","Middle Ages","Roman","Mediterranean","Western Europe"],desc="This marks the beginning of the Middle Ages")
+WorldEvent("Western Roman Empire Falls", 476, ["People","War","Antiquity","Middle Ages","Roman","Mediterranean","Western Europe"],desc="This marks the beginning of the Middle Ages")
+WorldEvent("New Zealand First Settled", 1280, ["People","Life","Middle Ages","Polynesian","Oceania"],desc="By Polynesian peoples")
+WorldEvent("Eastern Roman Empire Falls", 1453, ["People","War","Middle Ages","Roman","Mediterranean","Eastern Europe"],desc="This follows the Siege of Constantinople")
+
 
 #Modern

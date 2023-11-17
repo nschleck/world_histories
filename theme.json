@@ -96,7 +96,7 @@
     },
 
     "@tick_panel":
-     {
+    {
         "colours":
         {
             "dark_bg":"#FFFFFF"
@@ -111,7 +111,7 @@
     },
 
     "@scale_panel":
-     {    
+    {    
         "colours":
         {
             "dark_bg":"#362a52"
@@ -124,6 +124,23 @@
              "shadow_width": "10"
          }
     },  
+
+    "@event_panel":
+    {    
+        "colours":
+        {
+            "normal_bg":"#362a52"
+        },
+
+        "misc":
+         {
+            "border_width": "0", 
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "8",
+            "shadow_width": "1",
+            "tool_tip_delay":"0.2"
+         }
+    }, 
 
     "selection_list":
     {
@@ -153,6 +170,17 @@
             "shape": "rectangle",
             "border_width": "0",
             "shadow_width": "0"
+        }
+    },
+
+    "tool_tip.text_box":
+    {
+        "misc":
+        {
+            "shape":"rounded_rectangle",
+            "shape_corner_radius":"7",
+            "border_width": "0",
+            "padding": "5,5"
         }
     },
 
