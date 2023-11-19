@@ -89,7 +89,7 @@ class GUI_ScrollArea:
         self.area = pygame_gui.elements.UIScrollingContainer(relative_rect=pyg.Rect((0,self.ypos),(SCREEN_WIDTH,self.height)),
                                                              manager=self.manager)
         
-        self.area.set_scrollable_area_dimensions((self.width,self.height))
+        self.area.set_scrollable_area_dimensions((self.width,self.height-20))
 
 class GUI_ScaleBar:
     def __init__(self,topbar,scroll_area,manager) -> None:
@@ -158,3 +158,48 @@ class GUI_ScaleBar:
             tick_mark.kill()
         for tick_label in self.UItick_labels:
             tick_label.kill()
+
+class GUI_Event:
+    def __init__(self, Event, graphics_area, manager, x_pos) -> None:
+        self.manager = manager
+        self.graphics_area = graphics_area
+        self.Event = Event
+        self.x_pos = x_pos
+        
+        #temp color
+        self.color = pyg.Color(0,0,0,255)
+        self.width = 30
+        self.center_offset = int(self.width / 2)
+
+        self.text = dateIntToStr(self.Event.date) + ": " + self.Event.name
+
+        self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos - self.center_offset,-100),(self.width,self.width)),
+                                                    text = "",
+                                                    manager=manager,
+                                                    tool_tip_text=self.text,
+                                                    anchors={'bottom': 'bottom'},
+                                                    object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
+                                                    container=self.graphics_area)
+
+class GUI_Events:
+    def __init__(self, graphics_area, manager, events_list) -> None:
+        self.manager = manager
+        self.graphics_area = graphics_area
+        self.events_list = events_list
+
+        self.GUI_Events_list = []
+
+        #self.draw_gui_events()
+
+    
+    def draw_gui_events(self,ticks,factor,buffer_px):
+        #TODO: move factor, buffer, ticks to GUI scale object?
+        #TODO cleanup function, move to init
+        for Event in self.events_list:
+            x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
+            gui_Event = GUI_Event(Event,self.graphics_area,self.manager,x_pos)
+            self.GUI_Events_list.append(gui_Event)
+
+    def reset(self):
+        for Event in self.GUI_Events_list:
+            Event.button.kill()

@@ -117,6 +117,13 @@ def tagChecker(list):
             else:
                 print(f"{event.name}: unused tag - {tag}")
 
+
+#### Graphics Utilities ####
+
+def remap_date_to_px(date,date_scale_start,remap_factor,buffer_width):
+    return int((date - date_scale_start) * remap_factor) + buffer_width
+
+
 #### Events ####
 
 #Astrological / Geological / Early Life
