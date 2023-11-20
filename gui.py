@@ -105,6 +105,11 @@ class GUI_ScaleBar:
                                                              object_id=pygame_gui.core.ObjectID(class_id='@scale_panel'),
                                                              container = self.scroll_area.area)
         
+        self.buffer_px = 20
+        self.scale_ticks_list = []
+        self.remap_factor = 1
+        self.scale_px_list = []
+
         self.UIticks = []
         self.UItick_labels = []
 
@@ -127,11 +132,20 @@ class GUI_ScaleBar:
             tick += tick_spacing
             ticks.append(tick)  
 
-        return ticks
+        #return ticks
+        self.scale_ticks_list = ticks
 
-    def draw_ticks(self,date_list,px_list):
+    def calculate_remap_factor(self,date_list):
+        date_range = date_list[-1] - date_list[0]
+
+        px_range = self.scroll_area.width - (self.buffer_px * 2)
+        scale_factor = px_range / date_range
+
+        self.remap_factor = scale_factor
+
+    def draw_ticks(self,date_list):
         for i in range(len(date_list)):
-            pos_x = px_list[i]
+            pos_x = self.scale_px_list[i]
             if date_list[i] == 0:
                 tick_height = 40
             else:
@@ -152,6 +166,14 @@ class GUI_ScaleBar:
                                                         container=self.scroll_area.area,
                                                         object_id=pygame_gui.core.ObjectID(class_id='@tick_label'))
                 self.UItick_labels.append(tick_label)
+
+    def create_scale_px_list(self,date_list):
+        mapped_ticks = []
+        for tick in date_list:
+            tick_pos = remap_date_to_px(tick,date_list[0],self.remap_factor,self.buffer_px)
+            mapped_ticks.append(tick_pos)
+
+        self.scale_px_list = mapped_ticks
 
     def reset(self):
         for tick_mark in self.UIticks:
@@ -180,6 +202,9 @@ class GUI_Event:
                                                     anchors={'bottom': 'bottom'},
                                                     object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
                                                     container=self.graphics_area)
+        
+        self.button.colours["normal_bg"] = self.color
+        self.button.rebuild()
 
 class GUI_Events:
     def __init__(self, graphics_area, manager, events_list) -> None:

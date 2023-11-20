@@ -35,22 +35,6 @@ Scale_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150
 
 buffer = 20
 
-def calculate_remap_factor(date_list):
-    date_range = date_list[-1] - date_list[0]
-
-    px_range = Scroll_area.width - (buffer * 2)
-    scale_factor = px_range / date_range
-
-    return scale_factor
-
-def create_scale_px_list(date_list,factor):
-    mapped_ticks = []
-    for tick in date_list:
-        tick_pos = remap_date_to_px(tick,date_list[0],factor,buffer)
-        mapped_ticks.append(tick_pos)
-
-    return mapped_ticks
-
 #Testing -- create UI event objects
 Objects_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,150),(150,50)),
                                            text="create objects",
@@ -63,10 +47,6 @@ Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,200),(150
                                            text="reset",
                                            tool_tip_text="try me!",
                                            manager=manager)
-
-#Initialize some variables
-remap_factor = 1
-ticks = []
 
 #MAIN APP LOOP
 while True:
@@ -81,24 +61,20 @@ while True:
             sys.exit()
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == Scale_Button:
-                ticks = Scale_bar.create_date_scale()
-                #print(ticks)
+                Scale_bar.create_date_scale()
+                Scale_bar.calculate_remap_factor(Scale_bar.scale_ticks_list)
+                Scale_bar.create_scale_px_list(Scale_bar.scale_ticks_list)
+                Scale_bar.draw_ticks(Scale_bar.scale_ticks_list)
 
-                remap_factor = calculate_remap_factor(ticks)
-                ticks_px = create_scale_px_list(ticks,remap_factor)
-                #print(ticks_px)
-
-                Scale_bar.draw_ticks(ticks,ticks_px)
             if event.ui_element == Objects_Button:
                 active_events = Topbar.getEventsByTag()
+
                 #TODO filter active events by selected date range
-                #draw_events(active_events,ticks,remap_factor,buffer)
-                Events_Objs = GUI_Events(Scroll_area.area, manager,active_events)
-                Events_Objs.draw_gui_events(ticks,remap_factor,buffer) #TODO make this part of __init__
+                Events_Objs = GUI_Events(Scroll_area.area,manager,active_events)
+                Events_Objs.draw_gui_events(Scale_bar.scale_ticks_list,Scale_bar.remap_factor,buffer) #TODO make this part of __init__
 
             if event.ui_element == Reset_Button:
                 Scale_bar.reset()
-                #reset_drawn_events()
                 Events_Objs.reset()
 
         manager.process_events(event)
@@ -107,9 +83,5 @@ while True:
     
     screen.fill(light_purple)
     manager.draw_ui(screen)
-
-    #process theme / color changes after initializing UIObjects
-    for Event in drawn_events:
-        Event.button.rebuild()
 
     pyg.display.update()
