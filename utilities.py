@@ -4,7 +4,7 @@ worldEvents = []
 tagDict = {
     "type": ["Astrological","Geological","Scientific","Life","People","Invention","War"],
     "era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
-    "culture": ["Greek","Roman","Polynesian"],
+    "culture": ["Greek","Roman","Polynesian","Chinese"],
     "region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
 }
@@ -63,6 +63,17 @@ class WorldSpan(WorldEvent):
                     f"\tRegion: {self.regionTag}\n"
             )
      
+#### Input Utilities ####
+def tagChecker(list):
+    #checks that all world event tags are contained somewhere in the tag dictionary
+    for event in list:
+        tags = event.tags
+        for tag in tags:
+            if any([tagFilter([tag],"type"),tagFilter([tag],"era"),tagFilter([tag],"culture"),tagFilter([tag],"region")]):
+                continue
+            else:
+                print(f"{event.name}: unused tag - {tag}")
+
 #### Utilities ####
 
 def dateIntToStr(date):
@@ -90,14 +101,15 @@ def dateStrToInt(date):
     #e.g. 20,000 BCE -> -20000
     #TODO fix lazy code here, handle input
     number, suffix = date.split(" ")
+    number = float(number)
     if suffix == "CE":
         return int(number)
     elif suffix == "BCE":
-        return int(number) * -1
+        return int(number * -1)
     elif suffix == "MYA":
-        return int(number) * -1000000
+        return int(number * -1000000)
     elif suffix == "BYA":
-        return int(number) * -1000000000
+        return int(number * -1000000000)
 
 def tagFilter(rawTagList,tagType):
     #returns tags of a specific tag type, from an event's general tag list
@@ -107,36 +119,45 @@ def tagFilter(rawTagList,tagType):
             typedTags.append(tag)
     return typedTags
 
-def tagChecker(list):
-    #checks that all world event tags are contained somewhere in the tag dictionary
-    for event in list:
-        tags = event.tags
-        for tag in tags:
-            if any([tagFilter([tag],"type"),tagFilter([tag],"era"),tagFilter([tag],"culture"),tagFilter([tag],"region")]):
-                continue
-            else:
-                print(f"{event.name}: unused tag - {tag}")
+def filterEventsByDate(events,scale_ticks_list):
+    #remove events from events list that are outside of GUI scale scope (i.e. offscreen)
+    filtered_events = []
+    lower_bound = scale_ticks_list[0]
+    upper_bound = scale_ticks_list[-1]
 
+    for event in events:
+        if isinstance(event,WorldEvent) and not isinstance(event,WorldSpan):
+            if event.date > lower_bound and event.date < upper_bound:
+                filtered_events.append(event)
+        elif isinstance(event,WorldSpan):
+            if event.spanEnd > lower_bound and event.spanStart < upper_bound:
+                filtered_events.append(event)
+    
+    return filtered_events
 
 #### Graphics Utilities ####
 
 def remap_date_to_px(date,date_scale_start,remap_factor,buffer_width):
+    #return a y px value for displaying a given date, given the current GUI scale variables
     return int((date - date_scale_start) * remap_factor) + buffer_width
 
 
 #### Events ####
 
 #Astrological / Geological / Early Life
-#e1 = WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
-#e2 = WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
-#e3 = WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
-#e4 = WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
-#e5 = WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
-#e6 = WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
+WorldEvent("The Big Bang",-13500000000,["Astrological", "Pre Earth"])
+WorldEvent("Earth Formed", -4500000000,["Astrological","Early Earth"])
+WorldSpan("Cambrian Explosion","-540000000,-515000000",["Geological","Life","Early Life"])
+WorldSpan("Carboniferous Period", "-360000000,-300000000",["Geological","Life","Early Life"])
+WorldSpan("Most Recent Ice Age (LGP)","-115000,-9700",["Geological","Prehistory"])
+WorldEvent("The Holocene begins", -9700,["Geological", "Antiquity"], desc="This is the current geological epoch.")
 
 #Early Humans
 
 #Classical Antiquity
+WorldSpan("Trojan War (speculative)", "-1194,-1184",["People","War","Antiquity","Greek","Mediterranean"],desc="speculative dates via Eratosthenes")
+WorldSpan("Warring States Period", "-475,-221",["People","War","Antiquity","Chinese","Asia"])
+WorldSpan("Warring States Period (Testing)", "-450,-200",["People","War","Antiquity","Chinese","Asia"])
 
 #Middle Ages
 WorldEvent("Western Roman Empire Falls", 476, ["People","War","Antiquity","Middle Ages","Roman","Mediterranean","Western Europe"],desc="This marks the beginning of the Middle Ages")

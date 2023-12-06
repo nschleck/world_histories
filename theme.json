@@ -136,7 +136,7 @@
          {
             "border_width": "0", 
             "shape": "rounded_rectangle",
-            "shape_corner_radius": "8",
+            "shape_corner_radius": "12",
             "shadow_width": "1",
             "tool_tip_delay":"0.2"
          }

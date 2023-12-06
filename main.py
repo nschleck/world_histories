@@ -23,26 +23,22 @@ Scale_bar = GUI_ScaleBar(Topbar,Scroll_area,manager)
 
 
 #TODOs
-#TODO handle timespan objects in draw class
-#TODO filter active events by selected date range
 #TODO: #if event_graphic.pressed_event == True: #check button pressed without going through pygame.Event system
+#TODO: allow resizing of scrollable width
+#TODO: display event tooltips by default, click to turn off
+#TODO: left click to display alternate tooltip? (taglist, description, wiki link)
+#TODO: sort drawn events into multiple y-levels, i.e. no overlapping. Sort by start date first? 
+#TODO: implement color themeing, allow input to set themeing parameters
 
-#Testing -- Create UI Scale
+#Testing objects
 Scale_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150,50)),
                                            text="create scale",
                                            tool_tip_text="try me!",
                                            manager=manager)
-
-buffer = 20
-
-#Testing -- create UI event objects
 Objects_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,150),(150,50)),
                                            text="create objects",
                                            tool_tip_text="try me!",
                                            manager=manager)
-
-drawn_events = []
-
 Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,200),(150,50)),
                                            text="reset",
                                            tool_tip_text="try me!",
@@ -51,8 +47,6 @@ Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,200),(150
 #MAIN APP LOOP
 while True:
     dt = clock.tick(60)/1000.0   
-    
-    display_events = Topbar.getEventsByTag()
 
     #EVENT LOOP
     for event in pyg.event.get():
@@ -68,10 +62,15 @@ while True:
 
             if event.ui_element == Objects_Button:
                 active_events = Topbar.getEventsByTag()
+                active_events = filterEventsByDate(active_events,Scale_bar.scale_ticks_list)
 
-                #TODO filter active events by selected date range
-                Events_Objs = GUI_Events(Scroll_area.area,manager,active_events)
-                Events_Objs.draw_gui_events(Scale_bar.scale_ticks_list,Scale_bar.remap_factor,buffer) #TODO make this part of __init__
+                try:
+                    Events_Objs.reset()
+                except:
+                    pass
+
+                Events_Objs = GUI_Events(Scroll_area.area, manager, active_events)
+                Events_Objs.draw_gui_events(Scale_bar) #TODO make this part of __init__?
 
             if event.ui_element == Reset_Button:
                 Scale_bar.reset()

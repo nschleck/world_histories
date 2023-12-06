@@ -1,0 +1,113 @@
+﻿World Timeline
+The important and interesting bits
+
+
+Intro
+
+
+
+
+Geological and Early Life
+* 13.5 BYA : the Big Bang
+* 4.5 BYA : Earth formed
+* 4.4 -> 3.5 BYA : Life emerges
+* 540 MYA -> 515 MYA : Cambrian Explosion
+* 360 MYA -> 300 MYA : Carboniferous period
+* 115,000 -> 9700 BCE : most recent ice age (LGP)
+* 9700 BCE : Holocene (current geological epoch) begins
+
+
+Early Humans and Prehistory
+* 3.3 MYA : earliest known use of stone tools by early hominins. This marks the beginning of the Paleolithic
+* 2.8 MYA : earliest record of Homo genus (Ethiopia)
+* 2.5 -> 1.2 MYA : Homo habilis manufactures stone tools in Olduvai Gorge, Tanzania link
+* 2 MYA : Homo erectus emerges, spreads across to Eurasia
+*   * 1.6 MYA -> 200,000 BCE : Homo erectus manufactures stone tools in St. Acheul, France. (for over 1 million years!) link
+* 300,000 BCE : homo sapiens (humans) emerge
+* 130,000 -> 100,000 BCE : first wave of homo sapiens dispersal
+* 70,000 -> 50,000 BCE : second wave of homo sapiens dispersal
+* 13,000 BCE : first humans arrive in the Americas
+* 10,000 BCE : Neolithic / Agricultural Revolution begins, marking transition away from hunting and gathering
+* 8000 BCE : oldest recovered wooden boat made (Pesse canoe)
+* 5000 BCE : earliest known copper smelting, in Serbia
+* 4500 BCE : potter’s wheel invented
+* 3130 BCE : oldest wooden wheel with an axle (Ljubljana Marshes)
+* 3000 -> 2000 BCE : Stonehenge constructed
+* 2800 -> 1800 BCE : Standing stones (menhir) erected (Bell Beaker people?)
+* 2200 BCE : earliest evidence of iron-making in Turkey
+
+
+Early History
+   * 3100 BCE : Ancient Egyptian civilization begins
+   * 3000 BCE : first writing (cuneiform) appears in Mesopotamia
+   * 2613 -> 2577 BCE : construction of the Great Pyramid of Giza
+   * 1800 BCE : earliest surviving tablets of the Epic of Gilgamesh (Babylonian)
+   * 1194 -> 1184 BCE : Trojan War (speculative, Eratosthenes)
+   * 800 BCE : Ancient Greek civilization emerges
+   * 753 BCE : Rome founded (canonically)(April 21) 
+   * 509 -> 27 BCE : Roman Republic period
+   * 475 -> 221 BCE : Warring States period (China)
+   * 336 ->323 BCE : Conquests of Alexander the Great
+   * 323 -> 30 BCE : Hellenistic period
+   * 305 -> 304 BCE : siege of Rhodes
+   * 264 -> 146 BCE : Punic Wars
+   * 218 BCE : Hannibal crosses the Alps during the second Punic War
+   * 27 BCE -> 395 CE : unified Roman Empire period
+   * 395 -> 476 CE : Western Roman Empire period
+   * 105 CE : Cai Lun credited with inventing modern paper in China
+   * 376 -> 711 CE : Visigothic civilization. They migrate from the Balkans, through Italy to Hispania
+  
+
+   * 476 CE : Western Roman Empire falls, marking the start of the Middle Ages
+
+
+Middle Ages
+   * 395 -> 1453 : Eastern Roman Empire
+   * 710 -> 780 : Umayyad conquest of Hispania
+   * 751 : Papermaking spreads to Islamic world after the Battle of Talas
+   * 780 -> 1492 : Reconquista of Hispania (context debatable)
+   * 1095 -> 1291 : “Holy Land” Crusades directed at Jerusalem
+   * 1280 : New Zealand settled by humans (Polynesians) for the first time
+   * 1340 : Papermaking spreads to Europe via Italy
+   * 1453 : Eastern Roman Empire falls with the siege of Constantinople
+   * 1603 -> 1876 : Edo period under the Tokugawa shogunate (Japan)
+
+
+Renaissance
+   * 1650 ->1730 CE : Golden Age of Piracy
+   * 1803 -> 1815 CE : Napoleonic Wars
+
+
+Modernity
+   * 
+
+
+
+
+
+________________
+Planning for Python / Data Visualization
+
+
+Features
+   * Tags
+   * These are gonna be highly subjective and may require careful consideration
+   * Type
+   * Astrological, Geological, Life, Invention/Discovery, War, People, Arts
+   * Era
+   *  Pre Earth, Early Earth, Early Humans, Antiquity(?), … (?)
+   * Culture
+   *    * Region
+   * Tag selector - exclusive tags, or exclude specific tags
+   * Color entries by a single tag type? Type/Era/etc.
+   * Date Range - mode for true spacing display, or equally spaced display
+   * Entries can be single points (i.e. 543 BC) or spans (700-900 AD)
+   * Links to wikipedia and/or other source?
+   * TBD: how to differentiate between date estimates (e.g. geological events) and time spans?
+
+
+Structure
+   * Seems to really lend itself to Event as an object class, with a container class?
+   * Get guidance on container classes
+________________
+examples

@@ -1,6 +1,6 @@
 #IMPORTS
 import pygame as pyg
-import pygame_gui
+import pygame_gui, random
 from settings import *
 from utilities import *
 
@@ -187,21 +187,45 @@ class GUI_Event:
         self.graphics_area = graphics_area
         self.Event = Event
         self.x_pos = x_pos
+        self.y_pos = -100
         
-        #temp color
-        self.color = pyg.Color(0,0,0,255)
+        self.color = pyg.Color(random.randrange(0,255),
+                               random.randrange(0,255),
+                               random.randrange(0,255),
+                               150)
         self.width = 30
         self.center_offset = int(self.width / 2)
 
-        self.text = dateIntToStr(self.Event.date) + ": " + self.Event.name
+        if isinstance(Event, WorldEvent) and not isinstance(Event,WorldSpan):
+            self.text = dateIntToStr(self.Event.date) + ": " + self.Event.name
+            self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos - self.center_offset,self.y_pos),(self.width,self.width)),
+                                                        text = "",
+                                                        manager=manager,
+                                                        tool_tip_text=self.text,
+                                                        anchors={'bottom': 'bottom'},
+                                                        object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
+                                                        container=self.graphics_area)
+        elif isinstance(Event,WorldSpan):
+            self.text = dateIntToStr(self.Event.spanStart) + " to " + dateIntToStr(self.Event.spanEnd) + ": " + self.Event.name
+            
+            #clamp span to screen
+            screen_overflow_px = 20
+            self.x_pos[0] = max(x_pos[0],-1*screen_overflow_px)
+            self.x_pos[1] = min(x_pos[1],graphics_area.scrolling_width + screen_overflow_px)
+            self.span_width = (self.x_pos[1] - self.x_pos[0])
 
-        self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos - self.center_offset,-100),(self.width,self.width)),
-                                                    text = "",
-                                                    manager=manager,
-                                                    tool_tip_text=self.text,
-                                                    anchors={'bottom': 'bottom'},
-                                                    object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
-                                                    container=self.graphics_area)
+            #if span is too small to display, revert to original style
+            if self.span_width < self.width:
+                self.x_pos[0] = self.x_pos[0] - self.center_offset
+                self.span_width = self.x_pos[1] - self.x_pos[0] + self.width
+
+            self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos[0],self.y_pos),(self.span_width,self.width)),
+                                                        text = "",
+                                                        manager=manager,
+                                                        tool_tip_text=self.text,
+                                                        anchors={'bottom': 'bottom'},
+                                                        object_id=pygame_gui.core.ObjectID(class_id='@event_panel'),
+                                                        container=self.graphics_area)            
         
         self.button.colours["normal_bg"] = self.color
         self.button.rebuild()
@@ -213,18 +237,27 @@ class GUI_Events:
         self.events_list = events_list
 
         self.GUI_Events_list = []
-
         #self.draw_gui_events()
 
     
-    def draw_gui_events(self,ticks,factor,buffer_px):
-        #TODO: move factor, buffer, ticks to GUI scale object?
+    def draw_gui_events(self,Scale_bar):
         #TODO cleanup function, move to init
+        ticks = Scale_bar.scale_ticks_list
+        factor = Scale_bar.remap_factor
+        buffer_px = Scale_bar.buffer_px
+        
         for Event in self.events_list:
-            x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
-            gui_Event = GUI_Event(Event,self.graphics_area,self.manager,x_pos)
-            self.GUI_Events_list.append(gui_Event)
+            if isinstance(Event,WorldEvent) and not isinstance(Event,WorldSpan):
+                x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
+                gui_Event = GUI_Event(Event,self.graphics_area,self.manager,x_pos)
 
+            elif isinstance(Event,WorldSpan):
+                x_pos_start = remap_date_to_px(int(Event.spanStart),ticks[0],factor,buffer_px)
+                x_pos_end = remap_date_to_px(int(Event.spanEnd),ticks[0],factor,buffer_px)
+                gui_Event = GUI_Event(Event,self.graphics_area,self.manager,[x_pos_start,x_pos_end])
+
+            self.GUI_Events_list.append(gui_Event)
+            
     def reset(self):
         for Event in self.GUI_Events_list:
             Event.button.kill()
