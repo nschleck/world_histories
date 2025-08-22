@@ -29,6 +29,7 @@ Scale_bar = GUI_ScaleBar(Topbar,Scroll_area,manager)
 #TODO: left click to display alternate tooltip? (taglist, description, wiki link)
 #TODO: sort drawn events into multiple y-levels, i.e. no overlapping. Sort by start date first? 
 #TODO: implement color themeing, allow input to set themeing parameters
+#TODO: add emoticons / visual themeing to help distinguish icons
 
 #Testing objects
 Scale_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150,50)),
