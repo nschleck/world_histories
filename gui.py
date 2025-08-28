@@ -5,6 +5,32 @@ from settings import *
 from utilities import *
 
 #UI TOPBAR Object
+class GUI_TagSelectionList(pygame_gui.elements.UISelectionList):
+    def __init__(self, relative_rect, item_list, manager, container) -> None:
+        super().__init__(relative_rect,
+                         item_list,
+                         allow_multi_select=True,
+                         manager=manager,
+                         container=container,
+                         default_selection='All')
+    def update(self, time_delta: float):
+        super().update(time_delta)
+
+        # nothing selected
+        if len(self.get_multi_selection()) == 0:
+            #this approach is dumb; not smart enough to find scrolled object
+            element = self.item_list_container.elements[0]
+            sim_event = pyg.event.Event(pygame_gui.UI_BUTTON_PRESSED, {'ui_element': element})
+            self.process_event(sim_event)
+
+        # All + other things selected
+        if "All" in self.get_multi_selection() and len(self.get_multi_selection()) > 1:
+            element = self.item_list_container.elements[0]
+            sim_event = pyg.event.Event(pygame_gui.UI_BUTTON_PRESSED, {'ui_element': element})
+            self.process_event(sim_event)
+
+        
+
 class GUI_TopBar:
     def __init__(self, manager) -> None:
         self.manager = manager
@@ -33,12 +59,17 @@ class GUI_TopBar:
                                                manager=self.manager,
                                                container=self.panel)
 
-        self.type_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[2],self.row[0]),(180,70)),
-                                                item_list=['All'] + tagDict["type"],
-                                                allow_multi_select=True,
+        # self.type_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[2],self.row[0]),(180,70)),
+        #                                         item_list=['All'] + tagDict["type"],
+        #                                         allow_multi_select=True,
+        #                                         manager=self.manager,
+        #                                         container=self.panel,
+        #                                         default_selection='All')
+        self.type_selector = GUI_TagSelectionList(relative_rect=pyg.Rect((self.col[2],self.row[0]),(180,70)),
                                                 manager=self.manager,
-                                                container=self.panel,
-                                                default_selection='All')
+                                                item_list=['All'] + tagDict["type"],
+                                                container=self.panel)
+
         self.era_selector = pygame_gui.elements.UISelectionList(relative_rect=pyg.Rect((self.col[3],self.row[0]),(180,70)),
                                                 item_list=['All'] + tagDict["era"],
                                                 allow_multi_select=True,

@@ -30,18 +30,15 @@ Scale_bar = GUI_ScaleBar(Topbar,Scroll_area,manager)
 #TODO: sort drawn events into multiple y-levels, i.e. no overlapping. Sort by start date first? 
 #TODO: implement color themeing, allow input to set themeing parameters
 #TODO: add emoticons / visual themeing to help distinguish icons
+#TODO: don't allow dates before 13.5 BYA, or after 2100
 
 #Testing objects
-Scale_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150,50)),
-                                           text="create scale",
+Build_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,100),(150,50)),
+                                           text="Build Objects",
                                            tool_tip_text="try me!",
                                            manager=manager)
-Objects_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,150),(150,50)),
-                                           text="create objects",
-                                           tool_tip_text="try me!",
-                                           manager=manager)
-Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,200),(150,50)),
-                                           text="reset",
+Reset_Button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((20,150),(150,50)),
+                                           text="Reset",
                                            tool_tip_text="try me!",
                                            manager=manager)
 
@@ -55,13 +52,13 @@ while True:
             pyg.quit()
             sys.exit()
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if event.ui_element == Scale_Button:
+            if event.ui_element == Build_Button:
+                Scale_bar.reset()
                 Scale_bar.create_date_scale()
                 Scale_bar.calculate_remap_factor(Scale_bar.scale_ticks_list)
                 Scale_bar.create_scale_px_list(Scale_bar.scale_ticks_list)
                 Scale_bar.draw_ticks(Scale_bar.scale_ticks_list)
 
-            if event.ui_element == Objects_Button:
                 active_events = Topbar.getEventsByTag()
                 active_events = filterEventsByDate(active_events,Scale_bar.scale_ticks_list)
 
@@ -75,7 +72,10 @@ while True:
 
             if event.ui_element == Reset_Button:
                 Scale_bar.reset()
-                Events_Objs.reset()
+                try:
+                    Events_Objs.reset()
+                except:
+                    pass
 
         manager.process_events(event)
 
