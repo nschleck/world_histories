@@ -1,6 +1,7 @@
 #IMPORTS
 import pygame as pyg
-import pygame_gui, random
+import pygame_gui
+import random
 from settings import *
 from utilities import *
 
@@ -29,8 +30,6 @@ class GUI_TagSelectionList(pygame_gui.elements.UISelectionList):
             sim_event = pyg.event.Event(pygame_gui.UI_BUTTON_PRESSED, {'ui_element': element})
             self.process_event(sim_event)
 
-        
-
 class GUI_TopBar:
     def __init__(self, manager) -> None:
         self.manager = manager
@@ -39,6 +38,7 @@ class GUI_TopBar:
         self.panel = pygame_gui.elements.UIPanel(relative_rect=pyg.Rect((0,0),(SCREEN_WIDTH,self.height)),
                                          manager=manager)
         
+        # Topbar Grid
         self.row = [5,40]
         self.col = [20,200,400,590,780,970]
 
@@ -261,34 +261,26 @@ class GUI_Event:
         self.button.colours["normal_bg"] = self.color
         self.button.rebuild()
 
-class GUI_Events:
-    def __init__(self, graphics_area, manager, events_list) -> None:
-        self.manager = manager
-        self.graphics_area = graphics_area
-        self.events_list = events_list
-
-        self.GUI_Events_list = []
-        #self.draw_gui_events()
-
+def draw_gui_events(events_list, manager, Scale_bar, graphics_area):
+    ticks = Scale_bar.scale_ticks_list
+    factor = Scale_bar.remap_factor
+    buffer_px = Scale_bar.buffer_px
+    gui_events_list = []
     
-    def draw_gui_events(self,Scale_bar):
-        #TODO cleanup function, move to init
-        ticks = Scale_bar.scale_ticks_list
-        factor = Scale_bar.remap_factor
-        buffer_px = Scale_bar.buffer_px
-        
-        for Event in self.events_list:
-            if isinstance(Event,WorldEvent) and not isinstance(Event,WorldSpan):
-                x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
-                gui_Event = GUI_Event(Event,self.graphics_area,self.manager,x_pos)
+    for Event in events_list:
+        if isinstance(Event,WorldEvent) and not isinstance(Event,WorldSpan):
+            x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
+            gui_Event = GUI_Event(Event, graphics_area, manager,x_pos)
 
-            elif isinstance(Event,WorldSpan):
-                x_pos_start = remap_date_to_px(int(Event.spanStart),ticks[0],factor,buffer_px)
-                x_pos_end = remap_date_to_px(int(Event.spanEnd),ticks[0],factor,buffer_px)
-                gui_Event = GUI_Event(Event,self.graphics_area,self.manager,[x_pos_start,x_pos_end])
+        elif isinstance(Event,WorldSpan):
+            x_pos_start = remap_date_to_px(int(Event.spanStart),ticks[0],factor,buffer_px)
+            x_pos_end = remap_date_to_px(int(Event.spanEnd),ticks[0],factor,buffer_px)
+            gui_Event = GUI_Event(Event, graphics_area, manager,[x_pos_start,x_pos_end])
 
-            self.GUI_Events_list.append(gui_Event)
-            
-    def reset(self):
-        for Event in self.GUI_Events_list:
-            Event.button.kill()
+        gui_events_list.append(gui_Event)
+
+    return gui_events_list
+
+def reset_gui_events(events_list):
+    for Event in events_list:
+        Event.button.kill()
