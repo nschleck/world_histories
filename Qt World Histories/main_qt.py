@@ -1,10 +1,11 @@
 import sys
+import settings
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon, QPixmap)
+    QIcon)
 from PySide6.QtCore import Qt
 
 
@@ -13,7 +14,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("World Histories  |  Qt")
         self.setWindowIcon(QIcon('graphics/window_icon.png'))
-        self.setGeometry(100, 100, 900, 600)
+        self.setGeometry(100, 100, settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT)
 
         # === Main Container Widget ===
         central_widget = QWidget()
@@ -21,7 +22,24 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(central_layout)
         self.setCentralWidget(central_widget)
 
-        # === Top Selection Bar ===
+        # === Top UI Selection Bar ===
+        central_layout.addWidget(self._init_build_topbar())
+
+        # === Toggle Button ===
+        central_layout.addWidget(self._init_build_buttons(), alignment= Qt.AlignmentFlag.AlignLeft)
+
+        # === Scrollable Content Area ===
+        central_layout.addWidget(self._init_build_scroll_area())
+
+    def toggle_content_visibility(self):
+        is_hidden = self.scroll_content.isHidden()
+        self.scroll_content.setVisible(is_hidden)
+        if is_hidden:
+            self.toggle_button.setText("Hide Content Below")
+        else:
+            self.toggle_button.setText("Show Content Below")
+
+    def _init_build_topbar(self):
         top_bar = QWidget()
         #top_bar_layout = QHBoxLayout()
         top_bar_layout = QGridLayout()
@@ -49,11 +67,10 @@ class MainWindow(QMainWindow):
             top_bar_layout.addWidget(combo, 1, i+2)
             tagLabel = QLabel(f"Tags {i+1}")
             top_bar_layout.addWidget(tagLabel, 0, i+2, alignment=Qt.AlignmentFlag.AlignCenter)
+    
+        return top_bar
 
-
-        central_layout.addWidget(top_bar)
-
-        # === Toggle Button ===
+    def _init_build_buttons(self):
         self.toggle_button = QPushButton("Hide Content Below")
         self.toggle_button.setCheckable(True)
         self.toggle_button.setMinimumWidth(400)
@@ -74,14 +91,14 @@ class MainWindow(QMainWindow):
         #     }
         #     """)
         self.toggle_button.clicked.connect(self.toggle_content_visibility)
-        central_layout.addWidget(self.toggle_button, alignment= Qt.AlignmentFlag.AlignLeft)
 
-        # === Scrollable Content Area ===
+        return self.toggle_button
+
+    def _init_build_scroll_area(self):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Only horizontal for now
-        
 
         scroll_content = QWidget()
         scroll_layout = QHBoxLayout()  # Horizontal scroll
@@ -90,7 +107,7 @@ class MainWindow(QMainWindow):
         for i in range(20):
             lbl = QLabel(f"Element \N{GRINNING FACE} {i+1}")
             lbl.setStyleSheet("border: 1px solid gray; padding: 10px;")
-            lbl.setMinimumWidth(120)
+            lbl.setMinimumWidth(200)
             lbl.setAlignment(Qt.AlignCenter)
             scroll_layout.addWidget(lbl)
 
@@ -100,47 +117,11 @@ class MainWindow(QMainWindow):
         self.scroll_area.setWidget(scroll_content)
         self.scroll_content = scroll_content  # Save for hiding/showing
 
-        central_layout.addWidget(self.scroll_area)
-
-    def toggle_content_visibility(self):
-        is_hidden = self.scroll_content.isHidden()
-        self.scroll_content.setVisible(is_hidden)
-        if is_hidden:
-            self.toggle_button.setText("Hide Content Below")
-        else:
-            self.toggle_button.setText("Show Content Below")
-
+        return self.scroll_area
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyleSheet("""
-    QPushButton {
-        font-size: 22px;
-    }
-    QLabel {
-        font-size: 16px;
-    }
-    QComboBox {
-        font-size: 16px;
-    }
-    QLineEdit {
-        font-size: 16px;
-    }
-                      
-    QScrollBar:horizontal {
-        height: 40px;  /* Thickness of horizontal scrollbar */
-    }
-    QScrollBar::handle:horizontal {
-        background: #3498db;
-        min-width: 40px;
-        border-radius: 5px;
-    }
-    QScrollBar::add-line, QScrollBar::sub-line {
-        background: none;
-        min-width: 20px;
-        border: none;
-    }
-""")
+    app.setStyleSheet(settings.theme_main_style_sheet)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
