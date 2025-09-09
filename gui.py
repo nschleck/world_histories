@@ -5,7 +5,10 @@ import random
 from settings import *
 from utilities import *
 
-#UI TOPBAR Object
+def remap_date_to_px(date: int, date_scale_start, remap_factor, buffer_width):
+    #return a y px value for displaying a given date, given the current GUI scale variables
+    return int((date - date_scale_start) * remap_factor) + buffer_width
+
 class GUI_TagSelectionList(pygame_gui.elements.UISelectionList):
     def __init__(self, relative_rect, item_list, manager, container) -> None:
         super().__init__(relative_rect,
@@ -123,7 +126,7 @@ class GUI_ScrollArea:
         self.area.set_scrollable_area_dimensions((self.width,self.height-20))
 
 class GUI_ScaleBar:
-    def __init__(self,topbar,scroll_area,manager) -> None:
+    def __init__(self, topbar, scroll_area, manager) -> None:
         self.manager = manager
         self.topbar = topbar
         self.scroll_area = scroll_area
@@ -220,17 +223,19 @@ class GUI_Event:
         self.x_pos = x_pos
         self.y_pos = -100
         
-        self.color = pyg.Color(random.randrange(0,255),
-                               random.randrange(0,255),
-                               random.randrange(0,255),
+        self.color = pyg.Color(random.randrange(0,150),
+                               random.randrange(0,150),
+                               random.randrange(0,150),
                                150)
         self.width = 30
         self.center_offset = int(self.width / 2)
 
+        self.icon = 'hi' #TEMP
+
         if isinstance(Event, WorldEvent) and not isinstance(Event,WorldSpan):
             self.text = dateIntToStr(self.Event.date) + ": " + self.Event.name
-            self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos - self.center_offset,self.y_pos),(self.width,self.width)),
-                                                        text = "",
+            self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos - self.center_offset, self.y_pos),(self.width, self.width)),
+                                                        text = self.icon,
                                                         manager=manager,
                                                         tool_tip_text=self.text,
                                                         anchors={'bottom': 'bottom'},
@@ -251,7 +256,7 @@ class GUI_Event:
                 self.span_width = self.x_pos[1] - self.x_pos[0] + self.width
 
             self.button = pygame_gui.elements.UIButton(relative_rect=pyg.Rect((self.x_pos[0],self.y_pos),(self.span_width,self.width)),
-                                                        text = "",
+                                                        text = self.icon,
                                                         manager=manager,
                                                         tool_tip_text=self.text,
                                                         anchors={'bottom': 'bottom'},
@@ -261,7 +266,7 @@ class GUI_Event:
         self.button.colours["normal_bg"] = self.color
         self.button.rebuild()
 
-def draw_gui_events(events_list, manager, Scale_bar, graphics_area):
+def draw_gui_events(events_list: list, manager: pygame_gui.UIManager, Scale_bar: GUI_ScaleBar, graphics_area: pygame_gui.elements.UIScrollingContainer):
     ticks = Scale_bar.scale_ticks_list
     factor = Scale_bar.remap_factor
     buffer_px = Scale_bar.buffer_px
@@ -269,13 +274,13 @@ def draw_gui_events(events_list, manager, Scale_bar, graphics_area):
     
     for Event in events_list:
         if isinstance(Event,WorldEvent) and not isinstance(Event,WorldSpan):
-            x_pos = remap_date_to_px(int(Event.date),ticks[0],factor,buffer_px)
-            gui_Event = GUI_Event(Event, graphics_area, manager,x_pos)
+            x_pos = remap_date_to_px(int(Event.date), ticks[0], factor, buffer_px)
+            gui_Event = GUI_Event(Event, graphics_area, manager, x_pos)
 
         elif isinstance(Event,WorldSpan):
-            x_pos_start = remap_date_to_px(int(Event.spanStart),ticks[0],factor,buffer_px)
-            x_pos_end = remap_date_to_px(int(Event.spanEnd),ticks[0],factor,buffer_px)
-            gui_Event = GUI_Event(Event, graphics_area, manager,[x_pos_start,x_pos_end])
+            x_pos_start = remap_date_to_px(int(Event.spanStart), ticks[0], factor, buffer_px)
+            x_pos_end = remap_date_to_px(int(Event.spanEnd), ticks[0], factor, buffer_px)
+            gui_Event = GUI_Event(Event, graphics_area, manager, [x_pos_start, x_pos_end])
 
         gui_events_list.append(gui_Event)
 

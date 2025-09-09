@@ -14,7 +14,8 @@ Implementation is handled mostly through use of the Pygame GUI module.
 #TODO: implement color themeing, allow input to set themeing parameters?
 #TODO: add emoticons / visual themeing to help distinguish icons
 #TODO: don't allow dates before 13.5 BYA, or after 2100
-#TODO: cleanup terminology / data handling: event(pygame), Event(WorldEvent), GUI_Event class
+#TODO: cleanup terminology / data handling: event(pygame), Event(WorldEvent), GUI_Event class. Event(WorldEvent) and GUI_Event should be combined
+#TODO: put theme/color information in a single place (split between settings and theme.json)
 
 #IMPORTS
 import sys
@@ -28,11 +29,14 @@ from gui import *
 def initialize_GUI():    
     pyg.init()
     screen = pyg.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT), pyg.RESIZABLE)
+    screen.fill(light_purple)
     pyg.display.set_caption('World Histories')
     programIcon = pyg.image.load('graphics/window_icon.png')
     pyg.display.set_icon(programIcon)
     manager = pygame_gui.UIManager((SCREEN_WIDTH,SCREEN_HEIGHT), 'theme.json')
     clock = pyg.time.Clock()
+
+    #manager.preload_fonts()
     
     return screen, manager, clock
 
@@ -51,7 +55,7 @@ def doEventLoop(manager: pygame_gui.UIManager,
             pyg.quit()
             sys.exit()
         elif event.type == pyg.VIDEORESIZE:
-                # Update screen dimensions
+                # TODO Update screen dimensions
                 new_scr_width, new_scr_height = event.size
                 # Recreate the display surface with the new dimensions
                 # screen = pyg.display.set_mode((new_scr_width, new_scr_height), pyg.RESIZABLE)
@@ -105,9 +109,24 @@ def main():
         dt = clock.tick(60)/1000.0   
 
         gui_event_objs = doEventLoop(manager, Topbar, Scroll_area, Scale_bar, Build_Button, Reset_Button, gui_event_objs)
+        # testbox = pygame_gui.elements.UIText('<font face=noto_sans size=2 color=#000000><b>Hey, What the heck! </b>'
+        #                      '<br><br>'
+        #                      '<body bgcolor=#A0A050>This is</body> some <a href="test">text</a> '
+        #                      'in a different box,'
+        #                      '\U0001F600'
+        #                      'if you want then you should put a ring upon it. '
+        #                      '<body bgcolor=#990000>What if we do a really long word?</body> '
+        #                      '<b><i>derp FALALALALALALALXALALALXALALALALAAPaaaaarp gosh'
+        #                      '</b></i></font>',
+        #                      pyg.Rect((520, 250), (250, -1)),
+        #                      manager=manager,
+        #                      object_id=pygame_gui.core.ObjectID(class_id="@white_text_box",
+        #                                         object_id="#text_box_2"))
+        # test_img = pygame_gui.elements.UIImage(relative_rect=pyg.Rect((100,100),(50,50)), manager=manager, image_surface=screen,                             
+
         manager.update(dt)
         
-        screen.fill(light_purple)
+        screen.fill(periwinkle)
         manager.draw_ui(screen)
 
         pyg.display.update()

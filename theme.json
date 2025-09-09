@@ -24,6 +24,14 @@
             "active_border": "#8080B0",
             "filled_bar":"#f4251b",
             "unfilled_bar":"#CCCCCC"
+        },
+        "font":
+        {
+            "name": "Noto_Sans",
+            "size": "24",
+            "bold": "0",
+            "italic": "0",
+            "regular_path": "C:/Users/nschl/_DOCUMENTS/Fonts/Noto_Sans/NotoSans-Regular.ttf"
         }
     },
 
@@ -62,6 +70,18 @@
         {
             "text_shadow_size":"0"
         }        
+    },
+
+    "button":
+    {
+        "font":
+        {
+            "name": "Noto_Sans",
+            "size": "12",
+            "bold": "0",
+            "italic": "0",
+            "regular_path": "C:/Users/nschl/_DOCUMENTS/Fonts/Noto_Sans/NotoSans-Italic.ttf"
+        }
     },
 
     "@tick_label":
@@ -114,7 +134,8 @@
     {    
         "colours":
         {
-            "dark_bg":"#362a52"
+            "dark_bg":"#6f5e5c",
+            "old_dark_bg":"#362a52"
         },
 
         "misc":

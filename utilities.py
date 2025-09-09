@@ -135,13 +135,6 @@ def filterEventsByDate(events,scale_ticks_list):
     
     return filtered_events
 
-#### Graphics Utilities ####
-
-def remap_date_to_px(date,date_scale_start,remap_factor,buffer_width):
-    #return a y px value for displaying a given date, given the current GUI scale variables
-    return int((date - date_scale_start) * remap_factor) + buffer_width
-
-
 #### Events ####
 
 #Astrological / Geological / Early Life
