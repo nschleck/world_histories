@@ -7,6 +7,9 @@ SCREEN_HEIGHT = 600
 # THEME COLORS
 redwood      = "#AF5D63"
 wisteria     = "#BDADEA"
+
+bone         = "#D3CABB"
+ash_grey     = "#B0AFA0"
 periwinkle   = "#b5beff"
 blue         = "#7891d6"
 dark_blue    = "#454b66"
@@ -17,6 +20,9 @@ smoky_black  = "#191308"
 theme_main_style_sheet = f"""
     QWidget {{
         font-size: 16px;
+        background-color: {dark_blue};
+        /* border-radius: 15px; */
+        /* background-color: rgba(255, 0, 0, 0.2);  red transparent */
     }} 
     
     QPushButton {{
@@ -26,44 +32,52 @@ theme_main_style_sheet = f"""
         
     }}
     QComboBox {{
-        background-color: {dark_blue};
+        background-color: {blue};
     }}
     QLineEdit {{
-        background-color: {dark_blue};
+        background-color: {blue};
     }}
 
     QScrollArea {{
-        background-color: {wisteria};
+        background-color: {bone};
         color: white;
         border: 2px solid {van_dyke};
         border-radius: 6px;
-        padding: 5px;
+        padding: 12px;
     }}
     QScrollBar:horizontal {{
-        background: {van_dyke};
+        background: {ash_grey};
         min-height: 30px;  /* Lower min height for responsive drag */
-        border-radius: 15px;
+        border-radius: 0px;
     }}
     QScrollBar::handle:horizontal {{
-        background: {dark_blue};
-        border: 4px solid {van_dyke};
+        background: {blue};
+        border: 4px solid {dark_blue};
         width: 20px;
         max-height: 20px;
         border-radius: 15px;
     }}
     QScrollBar::add-line:horizontal, 
     QScrollBar::sub-line:horizontal {{
+        border-radius: 0px;
         background: transparent;  /* MUST BE SET */
     }}
     QScrollBar::add-page:horizontal,
     QScrollBar::sub-page:horizontal {{  
+        border-radius: 0px;
         background: transparent;  /* MUST BE SET */
     }}
     QScrollBar::handle:hover {{
-        border: 4px solid {dark_blue};
-        background: {blue};
+        background: {periwinkle};
     }}
     QScrollBar::handle:pressed {{
-        background: {periwinkle};
+        border: 4px solid {blue};
+    }}
+
+    HistoryScale {{
+        background-color: {ash_grey};
+        color: {ash_grey};
+        background: {ash_grey};
+        border-radius: 10px;
     }}
 """

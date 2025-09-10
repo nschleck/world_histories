@@ -1,12 +1,56 @@
 import sys
-import settings
+
+from settings import *
+from core import *
+from worldHistoryEvents import * #add all events to worldHistoryEvents list
+
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+    QSpacerItem,
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon)
-from PySide6.QtCore import Qt
+    QIcon, QPainter, QPen, QFont)
+from PySide6.QtCore import Qt, QRect
+
+class HistoryScale(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.minor_tick = 100     # Pixels per small tick
+        self.major_tick = 500     # Pixels per major tick
+        self.setFixedHeight(30)     # Scale height // really the height of the major tick
+        self.setFixedWidth(3000)    # Scale width
+        self.color = ash_grey
+        self.setAutoFillBackground(False)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        pen = QPen(bone)
+        pen.setWidth(2)
+        painter.setPen(pen)
+        font = QFont()
+        font.setPointSize(12)
+        painter.setFont(font)
+
+        width = self.width()
+        height = self.height()
+
+        # Draw ticks across the scale
+        for x in range(0, width, self.minor_tick):
+            if x % self.major_tick == 0:
+                # Major tick
+                painter.drawLine(x, height, x, 0)
+                painter.drawText(x + 2, height - 2, f"{x}")
+            else:
+                # Minor tick
+                painter.drawLine(x, height, x, height * 0.6)
+
+        painter.end()
+    
+    def mousePressEvent(self, event):
+        self.color = blue
+        self.update()  # Triggers paintEvent
 
 
 class MainWindow(QMainWindow):
@@ -14,7 +58,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("World Histories  |  Qt")
         self.setWindowIcon(QIcon('graphics/window_icon.png'))
-        self.setGeometry(100, 100, settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT)
+        self.setGeometry(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT)
 
         # === Main Container Widget ===
         central_widget = QWidget()
@@ -41,7 +85,6 @@ class MainWindow(QMainWindow):
 
     def _init_build_topbar(self):
         top_bar = QWidget()
-        #top_bar_layout = QHBoxLayout()
         top_bar_layout = QGridLayout()
         top_bar.setLayout(top_bar_layout)
 
@@ -101,19 +144,24 @@ class MainWindow(QMainWindow):
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Only horizontal for now
 
         scroll_content = QWidget()
-        scroll_layout = QHBoxLayout()  # Horizontal scroll
+        scroll_layout = QVBoxLayout()
 
         # Simulate large content
-        for i in range(20):
-            lbl = QLabel(f"Element \N{GRINNING FACE} {i+1}")
-            lbl.setStyleSheet("border: 1px solid gray; padding: 10px;")
-            lbl.setMinimumWidth(200)
-            lbl.setAlignment(Qt.AlignCenter)
-            scroll_layout.addWidget(lbl)
+        # for i in range(20):
+        #     lbl = QLabel(f"Element \N{GRINNING FACE} {i+1}")
+        #     lbl.setStyleSheet("border: 1px solid gray; padding: 10px;")
+        #     lbl.setMinimumWidth(200)
+        #     lbl.setAlignment(Qt.AlignCenter)
+        #     scroll_layout.addWidget(lbl)
+
+        # Build history scale bar
+        scale_bar = HistoryScale()
+        scroll_layout.addWidget(scale_bar)
+        scroll_layout.setAlignment(scale_bar, Qt.AlignmentFlag.AlignBottom)
+
 
         scroll_content.setLayout(scroll_layout)
         scroll_content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-
         self.scroll_area.setWidget(scroll_content)
         self.scroll_content = scroll_content  # Save for hiding/showing
 
@@ -121,7 +169,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyleSheet(settings.theme_main_style_sheet)
+    app.setStyleSheet(theme_main_style_sheet)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
