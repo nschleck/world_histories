@@ -16,12 +16,16 @@ from PySide6.QtCore import Qt, QRect
 class HistoryScale(QWidget):
     def __init__(self):
         super().__init__()
-        self.minor_tick = 100     # Pixels per small tick
-        self.major_tick = 500     # Pixels per major tick
+        self.minor_tick = 100     # Years per small tick
+        self.major_tick = 500     # Years per major tick
         self.setFixedHeight(30)     # Scale height // really the height of the major tick
         self.setFixedWidth(3000)    # Scale width
         self.color = ash_grey
         self.setAutoFillBackground(False)
+
+        self.start_date_int = dateStrToInt("2000 BCE")
+        self.end_date_int = dateStrToInt("2000 CE")
+        self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -37,20 +41,17 @@ class HistoryScale(QWidget):
         height = self.height()
 
         # Draw ticks across the scale
-        for x in range(0, width, self.minor_tick):
+        for x in range(self.start_date_int, self.end_date_int, self.minor_tick):
+            x_px_coord = int((x - self.start_date_int)*self.px_per_year) # map x(date) to x pixel coordinates
             if x % self.major_tick == 0:
                 # Major tick
-                painter.drawLine(x, height, x, 0)
-                painter.drawText(x + 2, height - 2, f"{x}")
+                painter.drawLine(x_px_coord, height, x_px_coord, 0)
+                painter.drawText(x_px_coord + 2, height - 2, dateIntToStr(x))
             else:
                 # Minor tick
-                painter.drawLine(x, height, x, height * 0.6)
+                painter.drawLine(x_px_coord, height, x_px_coord, height * 0.6)
 
         painter.end()
-    
-    def mousePressEvent(self, event):
-        self.color = blue
-        self.update()  # Triggers paintEvent
 
 
 class MainWindow(QMainWindow):
@@ -88,11 +89,11 @@ class MainWindow(QMainWindow):
         top_bar_layout = QGridLayout()
         top_bar.setLayout(top_bar_layout)
 
-        # Add two text fields
+        # Add two date-input text fields
         self.startDateEntry = QLineEdit()
-        self.startDateEntry.setPlaceholderText("Date Range Start")
+        self.startDateEntry.setText("2000 BCE")
         self.endDateEntry = QLineEdit()
-        self.endDateEntry.setPlaceholderText("Date Range End")
+        self.endDateEntry.setText("2000 CE")
         dateLabel1 = QLabel("Start Date")
         dateLabel2 = QLabel("End Date")
 
@@ -101,14 +102,16 @@ class MainWindow(QMainWindow):
         top_bar_layout.addWidget(dateLabel1, 0, 0, alignment=Qt.AlignmentFlag.AlignCenter)
         top_bar_layout.addWidget(dateLabel2, 0, 1, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # Add four dropdowns
+        # Add four dropdown tag menus
         self.dropdowns = []
+        labels = ["Type","Era","Culture","Region"]
         for i in range(4):
             combo = QComboBox()
-            combo.addItems([f"Option {i+1}.{j+1}" for j in range(5)])
+            combo.addItem("All")
+            combo.addItems([f"{tagDict[labels[i]][j]}" for j in range(len(tagDict[labels[i]]))])
             self.dropdowns.append(combo)
             top_bar_layout.addWidget(combo, 1, i+2)
-            tagLabel = QLabel(f"Tags {i+1}")
+            tagLabel = QLabel(labels[i])
             top_bar_layout.addWidget(tagLabel, 0, i+2, alignment=Qt.AlignmentFlag.AlignCenter)
     
         return top_bar

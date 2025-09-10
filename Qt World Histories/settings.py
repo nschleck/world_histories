@@ -33,9 +33,11 @@ theme_main_style_sheet = f"""
     }}
     QComboBox {{
         background-color: {blue};
+        min-width: 100px;
     }}
     QLineEdit {{
         background-color: {blue};
+        min-width: 100px;
     }}
 
     QScrollArea {{

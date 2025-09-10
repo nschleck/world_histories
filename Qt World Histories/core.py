@@ -1,10 +1,10 @@
 worldHistoryEvents = []
 
 tagDict = {
-    "type": ["Astrological","Geological","Scientific","Life","People","Invention","War"],
-    "era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
-    "culture": ["Greek","Roman","Polynesian","Chinese"],
-    "region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
+    "Type": ["Astrological","Geological","Scientific","Life","People","Invention","War"],
+    "Era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
+    "Culture": ["Greek","Roman","Polynesian","Chinese"],
+    "Region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
 }
 
@@ -15,10 +15,10 @@ class WorldEvent:
         self.tags = tags
         self.desc = desc
         
-        self.typeTag = tagFilter(tags,"type")
-        self.eraTag = tagFilter(tags,"era")
-        self.cultureTag = tagFilter(tags,"culture")
-        self.regionTag = tagFilter(tags,"region")
+        self.typeTag = tagFilter(tags,"Type")
+        self.eraTag = tagFilter(tags,"Era")
+        self.cultureTag = tagFilter(tags,"Culture")
+        self.regionTag = tagFilter(tags,"Region")
 
         worldHistoryEvents.append(self)
 
