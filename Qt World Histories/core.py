@@ -1,11 +1,23 @@
 worldHistoryEvents = []
 
 tagDict = {
-    "Type": ["Astrological","Geological","Scientific","Life","People","Invention","War"],
+    "Type": ["Astrological", "Geological", "Scientific", "Life", "People", "Art", "Invention", "War", "Construction"],
     "Era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
     "Culture": ["Greek","Roman","Polynesian","Chinese"],
     "Region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
+}
+# lookup table for tag emojis
+emojiDict = {
+    "Astrological": "🔭",
+    "Geological": "🌋",
+    "Scientific": "🔬",
+    "Life": "🧬",
+    "People": "👥",
+    "Art": "🎨",
+    "Invention": "💡",
+    "War": "⚔️",
+    "Construction": "🏛️"
 }
 
 class WorldEvent:

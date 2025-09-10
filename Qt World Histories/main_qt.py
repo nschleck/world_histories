@@ -106,9 +106,16 @@ class MainWindow(QMainWindow):
         self.dropdowns = []
         labels = ["Type","Era","Culture","Region"]
         for i in range(4):
+            #labelTagList = tagDict[labels[i]]
             combo = QComboBox()
             combo.addItem("All")
-            combo.addItems([f"{tagDict[labels[i]][j]}" for j in range(len(tagDict[labels[i]]))])
+            
+            for j in range(len(tagDict[labels[i]])):
+                #print(tagDict[labels[i]][j])
+                if not tagDict[labels[i]][j] in emojiDict:
+                    combo.addItem(f"{tagDict[labels[i]][j]}")
+                else:
+                     combo.addItem(f"{emojiDict[tagDict[labels[i]][j]]} {tagDict[labels[i]][j]}")
             self.dropdowns.append(combo)
             top_bar_layout.addWidget(combo, 1, i+2)
             tagLabel = QLabel(labels[i])
