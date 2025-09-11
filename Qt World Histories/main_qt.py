@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon, QPainter, QPen, QFont)
+    QIcon, QPainter, QPen, QFont, QColor)
 from PySide6.QtCore import Qt, QRect
 
 # TODO: update HistoryScale to deal with odd start dates (e.g. 9011 BCE)
@@ -59,7 +59,8 @@ class HistoryScale(QWidget):
 
         # Draw ticks across the scale
         for x in range(self.start_date_int, self.end_date_int, self.minor_tick):
-            x_px_coord = int((x - self.start_date_int)*self.px_per_year) # map x(date) to x pixel coordinates
+            #x_px_coord = int((x - self.start_date_int)*self.px_per_year) # map x(date) to x pixel coordinates
+            x_px_coord = mapDateToScaleBar(x, self.start_date_int, self.px_per_year)
             if x % self.major_tick == 0:
                 # Major tick
                 painter.drawLine(x_px_coord, height, x_px_coord, 0)
@@ -92,6 +93,44 @@ class HistoryScale(QWidget):
         self.update()
 
         return
+
+class HistoryEventButton(QPushButton):
+    def __init__(self, world_event: WorldEvent, parent, creation_index:int, scale_bar: HistoryScale):
+        super().__init__(world_event.icon, parent)
+        self.world_event = world_event
+        self.creation_index = creation_index
+        self.scale_bar = scale_bar
+
+        if not isinstance(self.world_event, WorldSpan):
+            self.start_date = self.world_event.date
+            self.end_date = None
+        else:
+            self.start_date = self.world_event.spanStart
+            self.end_date = self.world_event.spanEnd
+
+        self.setProperty("tag", "world_event_button")
+        self.setToolTip(str(world_event))
+
+        world_event.qButton = self # attach this button instance to WorldEvent object
+        self.draw()
+
+    def draw(self):
+        x_pos = mapDateToScaleBar(self.start_date, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
+        y_pos = random.randrange(50,150)
+
+        # Set random button color
+        #tint = random.randrange(100, 130)
+        #color = QColor(random.choice(theme_colors)).lighter(tint)
+        # world_event_button.setObjectName(f"colorButton{i}")
+        # world_event_button.setStyleSheet(f"""QPushButton#colorButton{i} {{
+        #                                     background-color: {color};}}""")
+
+        if isinstance(self.world_event, WorldSpan):
+            x_pos_right_edge = mapDateToScaleBar(self.world_event.spanEnd, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
+            self.setFixedWidth(x_pos_right_edge-x_pos)
+
+        self.move(x_pos, y_pos)
+        self.show()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -127,30 +166,20 @@ class MainWindow(QMainWindow):
         self.active_world_events = [] #reset drawable world_events list
         begin_year, end_year = self.scale_bar.start_date_int, self.scale_bar.end_date_int
 
-        for worldEvent in worldHistoryEvents:
+        for index, worldEvent in enumerate(worldHistoryEvents):
             # clean up any previous button elements
             if worldEvent.qButton is not None:
                 worldEvent.qButton.deleteLater()
 
             if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
                 if (worldEvent.date < end_year) and (worldEvent.date > begin_year):
-                    self.draw_worldEvent(worldEvent)
+                    HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
-                else:
-                    pass
             else:
-                pass #TODO handle worldspans
-
-    def draw_worldEvent(self, world_event):
-        x_pos = random.randrange(0,1000)
-        y_pos = random.randrange(50,150)
-
-        world_event_button = QPushButton(world_event.icon, self.scroll_content)
-        world_event.qButton = world_event_button
-        world_event_button.setProperty("tag", "world_event_button")
-        world_event_button.setToolTip(str(world_event))
-        world_event_button.move(x_pos, y_pos)
-        world_event_button.show()
+                if (worldEvent.spanStart < end_year) and (worldEvent.spanEnd > begin_year):
+                    #self.draw_worldEvent(worldEvent, index, worldEvent.spanStart)
+                    HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
+                    self.active_world_events.append(worldEvent)
 
     def _build_topbar(self):
         top_bar = QWidget()

@@ -17,6 +17,8 @@ dark_blue    = "#454b66"
 van_dyke     = "#322a26"
 smoky_black  = "#191308"
 
+theme_colors = [redwood, wisteria, bone, ash_grey, periwinkle, blue, dark_blue, van_dyke, smoky_black]
+
 # THEME COLORS
 theme_main_style_sheet = f"""
     QWidget {{
@@ -26,7 +28,7 @@ theme_main_style_sheet = f"""
         /* background-color: rgba(255, 0, 0, 0.2);  red transparent */
     }} 
     QWidget[tag="scroll_content"] {{
-        background-color: transparent;
+        background-color: {ash_grey};
     }} 
 
     #history_scale_bar {{
@@ -45,10 +47,10 @@ theme_main_style_sheet = f"""
     }}
 
     QPushButton[tag="world_event_button"] {{
-        font-size: 36px;
-        padding: 12px;
-        background-color: {redwood};
+        font-size: 24px;
+        padding: 6px;
         border-radius: 15px;
+        background-color: rgba(255, 0, 0, 0.2);
     }} 
 
 

@@ -123,6 +123,10 @@ def dateStrToInt(date):
     elif suffix == "BYA":
         return int(number * -1000000000)
 
+def mapDateToScaleBar(inputDate:int, scale_start_date:int, scale_px_per_year:float) -> int:
+    #converts a date(int) to x-pixel position on the scale bar / scroll area
+    return int((inputDate - scale_start_date) * scale_px_per_year)
+
 def tagFilter(rawTagList,tagType):
     #returns tags of a specific tag type, from an event's general tag list
     typedTags = []
