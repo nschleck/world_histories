@@ -28,6 +28,12 @@ theme_main_style_sheet = f"""
     QPushButton {{
         font-size: 22px;
     }}
+    QPushButton:hover {{
+        background-color: {blue};
+    }}
+    QPushButton:pressed {{
+        background-color: {periwinkle};
+    }}
     QLabel {{
         
     }}
