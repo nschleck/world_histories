@@ -1,4 +1,11 @@
+'''
+This code creates a GUI window for examining world historical events as they relate to one another.
+The user can control the time window and types of events they are viewing.
+Implementation is handled mostly through use of the Qt PySide6 module
+'''
+
 import sys
+import random
 
 from settings import *
 from core import *
@@ -17,14 +24,15 @@ from PySide6.QtCore import Qt, QRect
 
 
 class HistoryScale(QWidget):
-    def __init__(self, start_entryline: QLineEdit, end_entryline: QLineEdit, 
+    def __init__(self, start_entryline: QLineEdit, end_entryline: QLineEdit, parent=None, 
                  start_date_int=-2000, end_date_int=2000, minor_tick = 100):
-        super().__init__()
+        super().__init__(parent)
         self.minor_tick = minor_tick            # Years per small tick
         self.major_tick = 5 * self.minor_tick   # Years per major tick
-        self.setFixedHeight(30)     # Scale height // really the height of the major tick
-        self.setFixedWidth(3000)    # Scale width
-        self.color = ash_grey
+        self.setFixedHeight(50)     # Scale height // really the height of the major tick
+        self.setFixedWidth(SCROLL_WIDTH)    # Scale width
+        self.color = dark_blue
+        self.setObjectName("history_scale_bar")
         self.setAutoFillBackground(False)
 
         self.start_entryline = start_entryline
@@ -35,10 +43,10 @@ class HistoryScale(QWidget):
         self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
 
     def paintEvent(self, event): #paintEvent(self, event):       
-        print(f"painting {self.minor_tick} minor ticks")
+        # print(f"painting {self.minor_tick} minor ticks")
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        painter.fillRect(self.rect(), dark_blue)
+        painter.fillRect(self.rect(), self.color)
 
         pen = QPen(bone)
         pen.setWidth(2)
@@ -80,27 +88,10 @@ class HistoryScale(QWidget):
         valid_minor_ticks.append(self.minor_tick)
         valid_minor_ticks.sort()
         self.minor_tick = int(valid_minor_ticks[valid_minor_ticks.index(self.minor_tick)+1])    
-        # if self.px_per_year   < 0.000001:
-        #     self.minor_tick = 100000000
-        # elif self.px_per_year < 0.00001:
-        #     self.minor_tick = 10000000
-        # elif self.px_per_year < 0.0001:
-        #     self.minor_tick = 1000000
-        # elif self.px_per_year < 0.001:
-        #     self.minor_tick = 100000
-        # elif self.px_per_year < 0.01:
-        #     self.minor_tick = 10000
-        # elif self.px_per_year < 0.1:
-        #     self.minor_tick = 1000
-        # elif self.px_per_year < 1:
-        #     self.minor_tick = 100
-        
         self.major_tick = 5 * self.minor_tick
-    
         self.update()
 
         return
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -108,6 +99,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("World Histories  |  Qt")
         self.setWindowIcon(QIcon('graphics/window_icon.png'))
         self.setGeometry(100, 100, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.active_world_events = [] # world events currently drawable on scroll area (in-scope)
 
         # === Main Container Widget ===
         central_widget = QWidget()
@@ -130,6 +122,35 @@ class MainWindow(QMainWindow):
             self.scale_bar.set_tick_spacing()
         except ValueError:
             print("Invalid input: Please enter numeric values")
+
+    def update_worldEvents(self):
+        self.active_world_events = [] #reset drawable world_events list
+        begin_year, end_year = self.scale_bar.start_date_int, self.scale_bar.end_date_int
+
+        for worldEvent in worldHistoryEvents:
+            # clean up any previous button elements
+            if worldEvent.qButton is not None:
+                worldEvent.qButton.deleteLater()
+
+            if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
+                if (worldEvent.date < end_year) and (worldEvent.date > begin_year):
+                    self.draw_worldEvent(worldEvent)
+                    self.active_world_events.append(worldEvent)
+                else:
+                    pass
+            else:
+                pass #TODO handle worldspans
+
+    def draw_worldEvent(self, world_event):
+        x_pos = random.randrange(0,1000)
+        y_pos = random.randrange(50,150)
+
+        world_event_button = QPushButton(world_event.icon, self.scroll_content)
+        world_event.qButton = world_event_button
+        world_event_button.setProperty("tag", "world_event_button")
+        world_event_button.setToolTip(str(world_event))
+        world_event_button.move(x_pos, y_pos)
+        world_event_button.show()
 
     def _build_topbar(self):
         top_bar = QWidget()
@@ -172,9 +193,10 @@ class MainWindow(QMainWindow):
 
     def _build_buttons(self):
         self.toggle_button = QPushButton("Rebuild")
-        self.toggle_button.setCheckable(True)
+        #self.toggle_button.setCheckable(True)
         self.toggle_button.setMinimumWidth(400)
         self.toggle_button.clicked.connect(self.update_scale)
+        self.toggle_button.clicked.connect(self.update_worldEvents)
 
         return self.toggle_button
 
@@ -185,17 +207,17 @@ class MainWindow(QMainWindow):
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Only horizontal for now
 
         scroll_content = QWidget()
-        scroll_layout = QVBoxLayout()
+        scroll_content.setProperty("tag", "scroll_content")
+        scroll_content.setFixedWidth(SCROLL_WIDTH)
+        scroll_content.setMinimumHeight(400)
 
         # Build history scale bar
-        self.scale_bar = HistoryScale(start_entryline = self.startDateEntry, end_entryline = self.endDateEntry)
-        scroll_layout.addWidget(self.scale_bar)
-        scroll_layout.setAlignment(self.scale_bar, Qt.AlignmentFlag.AlignBottom)
+        self.scale_bar = HistoryScale(start_entryline = self.startDateEntry, end_entryline = self.endDateEntry, parent=scroll_content)
+        self.scale_bar.move(0,0)
 
-        scroll_content.setLayout(scroll_layout)
         scroll_content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.scroll_area.setWidget(scroll_content)
-        self.scroll_content = scroll_content  # Save for hiding/showing
+        self.scroll_content = scroll_content
 
         return self.scroll_area
 

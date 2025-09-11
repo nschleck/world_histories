@@ -1,46 +1,40 @@
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel
-
+from PySide6.QtWidgets import (
+    QApplication, QWidget, QScrollArea, QLabel, QPushButton, QVBoxLayout
+)
 import sys
 
-# ✅ Step 1: Create a custom widget
-class MyCustomWidget(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
 
-        layout = QVBoxLayout(self)
-        label = QLabel("Hello from MyCustomWidget")
-        layout.addWidget(label)
+class ScrollableArea(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Manual Placement in Scroll Area")
 
-# ✅ Step 2: Set up the application and apply QSS
-app = QApplication(sys.argv)
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
 
-# You can apply QSS using class name
-style_sheet = """
-MyCustomWidget {
-    background-color: #f0f0ff;
-    border: 2px solid #6666ff;
-    border-radius: 10px;
-    padding: 10px;
-}
+        # Create a content widget for scroll area
+        content_widget = QWidget()
+        content_widget.setMinimumSize(1000, 800)  # Make it big enough to scroll
 
-MyCustomWidget#specialOne {
-    background-color: #fff0f0;
-    border: 2px dashed #ff6666;
-}
-"""
+        # No layout — use absolute positioning
+        label1 = QLabel("Label at (100, 100)", content_widget)
+        label1.move(100, 100)
 
-app.setStyleSheet(style_sheet)
+        button1 = QPushButton("Button at (300, 200)", content_widget)
+        button1.setToolTip("I am placed manually.")
+        button1.move(300, 200)
 
-# ✅ Step 3: Instantiate and show the widgets
-normal_widget = MyCustomWidget()
-normal_widget.setWindowTitle("Normal MyCustomWidget")
-normal_widget.resize(300, 100)
-normal_widget.show()
+        scroll_area.setWidget(content_widget)
 
-special_widget = MyCustomWidget()
-special_widget.setObjectName("specialOne")  # For targeted QSS
-special_widget.setWindowTitle("Styled with Object Name")
-special_widget.resize(300, 100)
-special_widget.show()
+        # Place scroll_area in the main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(scroll_area)
+        self.setLayout(main_layout)
 
-sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ScrollableArea()
+    window.resize(600, 400)
+    window.show()
+    sys.exit(app.exec())

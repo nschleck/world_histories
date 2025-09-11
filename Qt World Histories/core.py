@@ -21,16 +21,18 @@ emojiDict = {
 }
 
 class WorldEvent:
-    def __init__(self, name, date, tags, desc=None) -> None:
+    def __init__(self, name, date, tags, desc=None, qButton = None) -> None:
         self.name = name
         self.date = date
         self.tags = tags
         self.desc = desc
-        
+        self.qButton = qButton
+
         self.typeTag = tagFilter(tags,"Type")
         self.eraTag = tagFilter(tags,"Era")
         self.cultureTag = tagFilter(tags,"Culture")
         self.regionTag = tagFilter(tags,"Region")
+        self.icon = emojiDict[self.typeTag[0]]
 
         worldHistoryEvents.append(self)
 
@@ -41,14 +43,14 @@ class WorldEvent:
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
-                    f"\tRegion: {self.regionTag}\n"
+                    f"\tRegion: {self.regionTag}"
             )
         else:
             return(f"{self.name}: {dateIntToStr(self.date)}\n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
-                    f"\tRegion: {self.regionTag}\n"
+                    f"\tRegion: {self.regionTag}"
             )
 
 class WorldSpan(WorldEvent):
@@ -64,14 +66,14 @@ class WorldSpan(WorldEvent):
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
-                    f"\tRegion: {self.regionTag}\n"
+                    f"\tRegion: {self.regionTag}"
             )
         else:
             return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}\n"
                     f"\tType: {self.typeTag}\n"
                     f"\tEra: {self.eraTag}\n"
                     f"\tCulture: {self.cultureTag}\n"
-                    f"\tRegion: {self.regionTag}\n"
+                    f"\tRegion: {self.regionTag}"
             )
         
 #### Data Input Utilities ####

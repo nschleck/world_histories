@@ -2,6 +2,7 @@
 FPS = 60
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
+SCROLL_WIDTH = 3000
 
 # ======= THEME =======
 # THEME COLORS
@@ -24,6 +25,14 @@ theme_main_style_sheet = f"""
         /* border-radius: 15px; */
         /* background-color: rgba(255, 0, 0, 0.2);  red transparent */
     }} 
+    QWidget[tag="scroll_content"] {{
+        background-color: transparent;
+    }} 
+
+    #history_scale_bar {{
+        padding: 12px;
+        border-radius: 15px;
+    }} 
     
     QPushButton {{
         font-size: 22px;
@@ -34,6 +43,15 @@ theme_main_style_sheet = f"""
     QPushButton:pressed {{
         background-color: {periwinkle};
     }}
+
+    QPushButton[tag="world_event_button"] {{
+        font-size: 36px;
+        padding: 12px;
+        background-color: {redwood};
+        border-radius: 15px;
+    }} 
+
+
     QLabel {{
         
     }}
@@ -82,10 +100,11 @@ theme_main_style_sheet = f"""
         border: 4px solid {blue};
     }}
 
-    HistoryScale {{
-        background-color: {ash_grey};
-        color: {ash_grey};
-        background: {ash_grey};
-        border-radius: 10px;
-    }}
+    QToolTip {{
+        background-color: {dark_blue};
+        border: 2px solid {blue};
+        padding: 6px;
+        font-size: 14px;
+        border-radius: 12px;
+    }}    
 """
