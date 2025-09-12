@@ -17,8 +17,8 @@ from PySide6.QtWidgets import (
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon, QPainter, QPen, QFont, QColor)
-from PySide6.QtCore import Qt, QRect
+    QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon)
+from PySide6.QtCore import Qt, QPoint, QRect
 
 # TODO: update HistoryScale to deal with odd start dates (e.g. 9011 BCE)
 
@@ -43,7 +43,7 @@ class HistoryScale(QWidget):
         self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
 
     def paintEvent(self, event): #paintEvent(self, event):       
-        # print(f"painting {self.minor_tick} minor ticks")
+        super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.fillRect(self.rect(), self.color)
@@ -110,27 +110,50 @@ class HistoryEventButton(QPushButton):
 
         self.setProperty("tag", "world_event_button")
         self.setToolTip(str(world_event))
+        # self.setContentsMargins(10, 10, 10, 10)
+        # self.setStyleSheet("padding: 10px;")
 
         world_event.qButton = self # attach this button instance to WorldEvent object
         self.draw()
 
     def draw(self):
-        x_pos = mapDateToScaleBar(self.start_date, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
-        y_pos = random.randrange(50,150)
+        self.x_pos = mapDateToScaleBar(self.start_date, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
+        self.y_pos = random.randrange(50,150)
 
-        # Set random button color
-        #tint = random.randrange(100, 130)
-        #color = QColor(random.choice(theme_colors)).lighter(tint)
-        # world_event_button.setObjectName(f"colorButton{i}")
-        # world_event_button.setStyleSheet(f"""QPushButton#colorButton{i} {{
+        # Set random button color TODO get this to work
+        # tint = random.randrange(100, 130)
+        # color = QColor(random.choice(theme_colors)).lighter(tint)
+        # self.setObjectName(f"colorButton{self.creation_index}")
+        # self.setStyleSheet(f"""HistoryEventButton#colorButton{self.creation_index} {{
         #                                     background-color: {color};}}""")
 
         if isinstance(self.world_event, WorldSpan):
             x_pos_right_edge = mapDateToScaleBar(self.world_event.spanEnd, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
-            self.setFixedWidth(x_pos_right_edge-x_pos)
+            self.setFixedWidth(x_pos_right_edge-self.x_pos)
 
-        self.move(x_pos, y_pos)
+        self.move(self.x_pos, self.y_pos)
         self.show()
+    
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Draw a custom pointer triangle
+        w = 10
+        h = 10
+        point1 = QPoint(0, h)
+        point2 = QPoint(0, -h)
+        point3 = QPoint(w, 0)
+
+        triangle = QPolygon([point1, point2, point3])
+        painter.setBrush(QBrush(redwood))
+        painter.setPen(Qt.NoPen)  # Optional: no border
+        painter.drawPolygon(triangle)
+
+        painter.end()
+
 
 class MainWindow(QMainWindow):
     def __init__(self):

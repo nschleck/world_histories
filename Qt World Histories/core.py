@@ -2,7 +2,7 @@ worldHistoryEvents = []
 
 tagDict = {
     "Type": ["Astrological", "Geological", "Scientific", "Life", "People", "Art", "Invention", "War", "Construction"],
-    "Era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Modern"],
+    "Era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Renaissance", "Modern"],
     "Culture": ["Greek","Roman","Polynesian","Chinese"],
     "Region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
