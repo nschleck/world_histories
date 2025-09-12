@@ -1,9 +1,9 @@
 worldHistoryEvents = []
 
 tagDict = {
-    "Type": ["Astrological", "Geological", "Scientific", "Life", "People", "Art", "Invention", "War", "Construction"],
+    "Type": ["Astrological", "Geological", "Scientific", "Life", "People", "Art", "Invention", "War", "Construction", "Religion"],
     "Era": ["Pre Earth", "Early Earth", "Early Life", "Prehistory","Antiquity","Middle Ages", "Renaissance", "Modern"],
-    "Culture": ["Greek","Roman","Polynesian","Chinese"],
+    "Culture": ["Greek","Roman","Polynesian","Chinese","Japanese"],
     "Region": ["North America", "South America", "Central America", "Western Europe", "Mediterranean",
                 "Eastern Europe","Africa","Middle East","Asia", "Oceania","Arctic","Antarctic"]
 }
@@ -17,7 +17,8 @@ emojiDict = {
     "Art": "🎨",
     "Invention": "💡",
     "War": "⚔️",
-    "Construction": "🏛️"
+    "Construction": "🏛️",
+    "Religion": "⛪"
 }
 
 class WorldEvent:
@@ -37,6 +38,14 @@ class WorldEvent:
         worldHistoryEvents.append(self)
 
     def __str__(self) -> str:
+        if self.desc:
+            return(f"{self.name}: {dateIntToStr(self.date)}\n"
+                    f"{self.desc}"
+            )
+        else:
+            return(f"{self.name}: {dateIntToStr(self.date)}")
+    
+    def str_plus_tags(self) -> str:
         if self.desc:
             return(f"{self.name}: {dateIntToStr(self.date)}\n"
                     f"\t{self.desc} \n"
@@ -60,6 +69,14 @@ class WorldSpan(WorldEvent):
         self.spanEnd = int(self.date.split(",")[1])
 
     def __str__(self) -> str:
+        if self.desc:
+            return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}\n"
+                    f"{self.desc}"
+            )
+        else:
+            return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}")
+
+    def str_plus_tags(self) -> str:
         if self.desc:
             return(f"{self.name}: {dateIntToStr(self.spanStart)} to {dateIntToStr(self.spanEnd)}\n"
                     f"\t{self.desc}\n"

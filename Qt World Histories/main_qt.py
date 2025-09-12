@@ -23,6 +23,13 @@ from PySide6.QtCore import Qt, QPoint, QRect
 # TODO: update HistoryScale to deal with odd start dates (e.g. 9011 BCE)
 
 
+class PersistentTooltip(QLabel):
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.SubWindow)
+        self.setAttribute(Qt.WA_ShowWithoutActivating)
+        self.adjustSize()
+
 class HistoryScale(QWidget):
     def __init__(self, start_entryline: QLineEdit, end_entryline: QLineEdit, parent=None, 
                  start_date_int=-2000, end_date_int=2000, minor_tick = 100):
@@ -100,7 +107,8 @@ class HistoryEventButton(QPushButton):
         self.world_event = world_event
         self.creation_index = creation_index
         self.scale_bar = scale_bar
-
+        self.scroll_content = parent
+        
         if not isinstance(self.world_event, WorldSpan):
             self.start_date = self.world_event.date
             self.end_date = None
@@ -109,12 +117,12 @@ class HistoryEventButton(QPushButton):
             self.end_date = self.world_event.spanEnd
 
         self.setProperty("tag", "world_event_button")
-        self.setToolTip(str(world_event))
-        # self.setContentsMargins(10, 10, 10, 10)
-        # self.setStyleSheet("padding: 10px;")
 
         world_event.qButton = self # attach this button instance to WorldEvent object
         self.draw()
+
+        self.tooltip = None
+        self.clicked.connect(self.show_custom_tooltip)
 
     def draw(self):
         self.x_pos = mapDateToScaleBar(self.start_date, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
@@ -154,6 +162,15 @@ class HistoryEventButton(QPushButton):
 
         painter.end()
 
+    def show_custom_tooltip(self):
+        if self.tooltip and self.tooltip.isVisible():
+            self.tooltip.hide()
+            return
+
+        self.tooltip = PersistentTooltip(str(self.world_event), parent=self.scroll_content)
+        local_pos = self.mapTo(self.scroll_content, QPoint(0, self.height()))
+        self.tooltip.move(local_pos)
+        self.tooltip.show()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -208,6 +225,8 @@ class MainWindow(QMainWindow):
         top_bar = QWidget()
         top_bar_layout = QGridLayout()
         top_bar.setLayout(top_bar_layout)
+        # top_bar.setStyleSheet(f"""QWidget {{
+        # background-color: {dark_blue};}}""" )
 
         # Add two date-input text fields
         self.startDateEntry = QLineEdit()

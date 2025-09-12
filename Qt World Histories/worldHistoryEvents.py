@@ -92,12 +92,18 @@ WorldEvent("New Zealand First Settled by humans",
            1280, 
            ["People", "Middle Ages", "Polynesian", "Oceania"],
            desc="(Polynesian peoples)")
+WorldSpan("\"Holy Land\" Crusades directed at Jerusalem", 
+          "1095,1291",
+          ["Religion", "People","Eastern Europe","Middle East"])
 WorldEvent("Eastern Roman Empire Falls", 
            1453, 
            ["War", "Middle Ages", "Roman", "Mediterranean", "Eastern Europe"],
            desc="This follows the Siege of Constantinople")
 
 #Renaissance
+WorldSpan("Edo Period (Tokugawa shogunate)", 
+          "1603,1876",
+          ["People","Japanese","Asia"])
 WorldSpan("Golden Age of Piracy", 
           "1650,1730",
           ["People", "War", "Renaissance"])

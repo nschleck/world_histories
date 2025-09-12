@@ -109,4 +109,11 @@ theme_main_style_sheet = f"""
         font-size: 14px;
         border-radius: 12px;
     }}    
+    PersistentTooltip {{
+        background-color: {dark_blue};
+        border: 2px solid {blue};
+        padding: 6px;
+        font-size: 14px;
+        border-radius: 12px;
+    }}  
 """
