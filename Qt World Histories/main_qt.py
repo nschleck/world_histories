@@ -20,7 +20,16 @@ from PySide6.QtGui import (
     QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon)
 from PySide6.QtCore import Qt, QPoint, QRect
 
-# TODO: update HistoryScale to deal with odd start dates (e.g. 9011 BCE)
+# TODO: add hide/show all tooltip button?
+# TODO: prevent tooltips from overflowing the scroll_area
+# TODO: click scrollarea to kill all tooltips
+
+# TODO: visually differentiate time spans and events
+
+# TODO: implement tag filtering
+# TODO: select era tag => zoom into that time span
+# TODO: add links to wiki "learn more"
+# TODO: some indication of era in scroll area
 
 
 class PersistentTooltip(QLabel):
@@ -66,7 +75,6 @@ class HistoryScale(QWidget):
 
         # Draw ticks across the scale
         for x in range(self.start_date_int, self.end_date_int, self.minor_tick):
-            #x_px_coord = int((x - self.start_date_int)*self.px_per_year) # map x(date) to x pixel coordinates
             x_px_coord = mapDateToScaleBar(x, self.start_date_int, self.px_per_year)
             if x % self.major_tick == 0:
                 # Major tick
@@ -97,6 +105,11 @@ class HistoryScale(QWidget):
         valid_minor_ticks.sort()
         self.minor_tick = int(valid_minor_ticks[valid_minor_ticks.index(self.minor_tick)+1])    
         self.major_tick = 5 * self.minor_tick
+
+        #make sure scale starts at a valid tick multiple
+        if self.start_date_int % self.minor_tick != 0:
+            self.start_date_int = (self.start_date_int // self.minor_tick) * self.minor_tick
+
         self.update()
 
         return
@@ -108,7 +121,7 @@ class HistoryEventButton(QPushButton):
         self.creation_index = creation_index
         self.scale_bar = scale_bar
         self.scroll_content = parent
-        
+
         if not isinstance(self.world_event, WorldSpan):
             self.start_date = self.world_event.date
             self.end_date = None
@@ -207,9 +220,11 @@ class MainWindow(QMainWindow):
         begin_year, end_year = self.scale_bar.start_date_int, self.scale_bar.end_date_int
 
         for index, worldEvent in enumerate(worldHistoryEvents):
-            # clean up any previous button elements
+            # clean up any previous button/tooltip elements
             if worldEvent.qButton is not None:
                 worldEvent.qButton.deleteLater()
+                if worldEvent.qButton.tooltip is not None:
+                    worldEvent.qButton.tooltip.deleteLater()
 
             if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
                 if (worldEvent.date < end_year) and (worldEvent.date > begin_year):

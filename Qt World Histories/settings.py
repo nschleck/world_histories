@@ -37,10 +37,14 @@ theme_main_style_sheet = f"""
     }} 
     
     QPushButton {{
+        background-color: {blue};
+        border: 2px solid {ash_grey};
+        border-radius: 6px;
         font-size: 22px;
     }}
     QPushButton:hover {{
         background-color: {blue};
+        border: 2px solid {bone};
     }}
     QPushButton:pressed {{
         background-color: {periwinkle};
