@@ -21,6 +21,7 @@ theme_colors = [redwood, wisteria, bone, ash_grey, periwinkle, blue, dark_blue, 
 
 # THEME COLORS
 theme_main_style_sheet = f"""
+    /* Central Themeing */
     QWidget {{
         font-size: 16px;
         background-color: {dark_blue};
@@ -35,7 +36,15 @@ theme_main_style_sheet = f"""
         padding: 12px;
         border-radius: 15px;
     }} 
-    
+
+    QComboBox {{
+        background-color: {blue};
+        min-width: 100px;
+    }}
+    QLineEdit {{
+        background-color: {blue};
+        min-width: 100px;
+    }}
     QPushButton {{
         background-color: {blue};
         border: 2px solid {ash_grey};
@@ -50,26 +59,30 @@ theme_main_style_sheet = f"""
         background-color: {periwinkle};
     }}
 
+    
+    /* World Event button objects */
     QPushButton[tag="world_event_button"] {{
         font-size: 24px;
         padding: 6px;
         border-radius: 15px;
         background-color: rgba(255, 0, 0, 0.2);
     }} 
+    QPushButton[tag="world_span_button"] {{
+        font-size: 24px;
+        padding: 6px;
+        border-radius: 15px;
+        background-color: rgba(0, 0, 255, 0.2);
+    }}  
+    PersistentTooltip {{
+        background-color: {dark_blue};
+        border: 2px solid {blue};
+        padding: 6px;
+        font-size: 14px;
+        border-radius: 12px;
+    }}  
 
-
-    QLabel {{
-        
-    }}
-    QComboBox {{
-        background-color: {blue};
-        min-width: 100px;
-    }}
-    QLineEdit {{
-        background-color: {blue};
-        min-width: 100px;
-    }}
-
+    
+    /* Scroll Area objects */
     QScrollArea {{
         background-color: {bone};
         color: white;
@@ -105,19 +118,4 @@ theme_main_style_sheet = f"""
     QScrollBar::handle:pressed {{
         border: 4px solid {blue};
     }}
-
-    QToolTip {{
-        background-color: {dark_blue};
-        border: 2px solid {blue};
-        padding: 6px;
-        font-size: 14px;
-        border-radius: 12px;
-    }}    
-    PersistentTooltip {{
-        background-color: {dark_blue};
-        border: 2px solid {blue};
-        padding: 6px;
-        font-size: 14px;
-        border-radius: 12px;
-    }}  
 """

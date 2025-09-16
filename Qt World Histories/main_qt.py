@@ -20,7 +20,6 @@ from PySide6.QtGui import (
     QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon)
 from PySide6.QtCore import Qt, QPoint, QRect
 
-# TODO: add hide/show all tooltip button?
 # TODO: prevent tooltips from overflowing the scroll_area
 # TODO: click scrollarea to kill all tooltips
 
@@ -123,13 +122,13 @@ class HistoryEventButton(QPushButton):
         self.scroll_content = parent
 
         if not isinstance(self.world_event, WorldSpan):
+            self.setProperty("tag", "world_event_button")
             self.start_date = self.world_event.date
             self.end_date = None
         else:
+            self.setProperty("tag", "world_span_button")
             self.start_date = self.world_event.spanStart
             self.end_date = self.world_event.spanEnd
-
-        self.setProperty("tag", "world_event_button")
 
         world_event.qButton = self # attach this button instance to WorldEvent object
         self.draw()
@@ -204,7 +203,14 @@ class MainWindow(QMainWindow):
         central_layout.addWidget(self.UI_topbar)
 
         # === Toggle Button ===
-        central_layout.addWidget(self._build_buttons(), alignment= Qt.AlignmentFlag.AlignLeft)
+        self._build_buttons()
+        self.button_panel = QWidget()
+        button_layout = QHBoxLayout()
+        central_layout.addWidget(self.button_panel)
+        self.button_panel.setLayout(button_layout)
+
+        button_layout.addWidget(self.toggle_button)
+        button_layout.addWidget(self.hideshow_button)
 
         # === Scrollable Content Area ===
         central_layout.addWidget(self._build_scroll_area())
@@ -218,6 +224,9 @@ class MainWindow(QMainWindow):
     def update_worldEvents(self):
         self.active_world_events = [] #reset drawable world_events list
         begin_year, end_year = self.scale_bar.start_date_int, self.scale_bar.end_date_int
+
+        if self.hidden_tooltips:
+            self.hide_show_tooltips()
 
         for index, worldEvent in enumerate(worldHistoryEvents):
             # clean up any previous button/tooltip elements
@@ -235,6 +244,21 @@ class MainWindow(QMainWindow):
                     #self.draw_worldEvent(worldEvent, index, worldEvent.spanStart)
                     HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
+
+    def hide_show_tooltips(self):       
+        self.hidden_tooltips = not self.hidden_tooltips #invert boolean
+        if self.hidden_tooltips:
+            self.hideshow_button.setText("Show ToolTips")
+            for worldEvent in self.active_world_events:
+                if worldEvent.qButton is not None:
+                    if worldEvent.qButton.tooltip is not None:
+                        worldEvent.qButton.tooltip.hide()
+        else:
+            self.hideshow_button.setText("Hide ToolTips")
+            for worldEvent in self.active_world_events:
+                if worldEvent.qButton is not None:
+                    if worldEvent.qButton.tooltip is not None:
+                        worldEvent.qButton.tooltip.show()
 
     def _build_topbar(self):
         top_bar = QWidget()
@@ -278,13 +302,17 @@ class MainWindow(QMainWindow):
         return top_bar
 
     def _build_buttons(self):
+        btn_width = 400
         self.toggle_button = QPushButton("Rebuild")
         #self.toggle_button.setCheckable(True)
-        self.toggle_button.setMinimumWidth(400)
+        self.toggle_button.setMinimumWidth(btn_width)
         self.toggle_button.clicked.connect(self.update_scale)
         self.toggle_button.clicked.connect(self.update_worldEvents)
 
-        return self.toggle_button
+        self.hideshow_button = QPushButton("Hide ToolTips")
+        self.hideshow_button.setMinimumWidth(btn_width)
+        self.hideshow_button.clicked.connect(self.hide_show_tooltips)
+        self.hidden_tooltips = False
 
     def _build_scroll_area(self):
         self.scroll_area = QScrollArea()
