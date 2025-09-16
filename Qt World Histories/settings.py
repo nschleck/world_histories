@@ -39,8 +39,30 @@ theme_main_style_sheet = f"""
 
     QComboBox {{
         background-color: {blue};
-        min-width: 100px;
+        min-width: 150px;
     }}
+    QComboBox QAbstractItemView::indicator {{
+        width: 20px;
+        height: 20px;
+        border: 2px solid {ash_grey};
+        border-radius: 5px;
+        background-color: {van_dyke};
+    }}
+    QComboBox QAbstractItemView::indicator:checked {{
+        background-color: {redwood};
+    }}
+    QComboBox QAbstractItemView::item {{
+        padding: 4px;
+    }}
+    QComboBox QAbstractItemView::item:selected {{
+        background-color: {ash_grey};
+    }}
+    QComboBox QAbstractItemView::item:hover {{
+        background-color: {van_dyke};
+        border: none;
+    }}
+
+
     QLineEdit {{
         background-color: {blue};
         min-width: 100px;

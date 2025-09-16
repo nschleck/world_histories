@@ -13,17 +13,16 @@ from worldHistoryEvents import * #add all events to worldHistoryEvents list
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QSpacerItem,
+    QSpacerItem, QStyledItemDelegate, QListView, 
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon)
-from PySide6.QtCore import Qt, QPoint, QRect
+    QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon,
+    QStandardItem, QStandardItemModel)
+from PySide6.QtCore import Qt, QPoint, QRect, Signal, QModelIndex, QItemSelectionModel
 
 # TODO: prevent tooltips from overflowing the scroll_area
 # TODO: click scrollarea to kill all tooltips
-
-# TODO: visually differentiate time spans and events
 
 # TODO: implement tag filtering
 # TODO: select era tag => zoom into that time span
@@ -184,6 +183,88 @@ class HistoryEventButton(QPushButton):
         self.tooltip.move(local_pos)
         self.tooltip.show()
 
+class CheckableComboBox(QComboBox):
+    selectionChanged = Signal(list)
+
+    def __init__(self, list_items, parent=None):
+        super().__init__(parent)
+        self.setView(QListView())  # To allow for checkable items
+        self.setModel(QStandardItemModel(self))
+        self.setEditable(True)
+        self.lineEdit().setReadOnly(True)
+        self.lineEdit().setPlaceholderText("Select...")
+
+        self._items = list_items
+        #self._items = ["All", "0", "1", "2", "3"]
+        self._item_lookup = {}
+
+        self._block_signal = False
+        self.initItems()
+        self.view().pressed.connect(self.handleItemPressed)
+        self.setEditable(False)
+
+    def initItems(self):
+        for text in self._items:
+            item = QStandardItem(text)
+            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+            item.setData(Qt.Unchecked, Qt.CheckStateRole)
+            self.model().appendRow(item)
+            self._item_lookup[text] = item
+
+        # Connect signals
+        self.model().itemChanged.connect(self.handleItemChanged)
+
+    def handleItemChanged(self, changed_item):
+        if self._block_signal:
+            return
+
+        self._block_signal = True
+        text = changed_item.text()
+
+        if text == "All":
+            if changed_item.checkState() == Qt.Checked:
+                # Deselect all others
+                for t, item in self._item_lookup.items():
+                    if t != "All":
+                        item.setCheckState(Qt.Unchecked)
+            # Else: Do nothing
+        else:
+            if changed_item.checkState() == Qt.Checked:
+                # Deselect "All" if another item is selected
+                all_item = self._item_lookup["All"]
+                if all_item.checkState() == Qt.Checked:
+                    all_item.setCheckState(Qt.Unchecked)
+
+        #self.updateDisplayText()
+        #self.selectionChanged.emit(self.getSelectedItems())
+        self._block_signal = False
+
+    def updateDisplayText(self):
+        return
+        #     #self.setEditable(True)
+        #     selected = self.getSelectedItems()
+        #     display_text = ", ".join(selected) if selected else "Select..."
+        #     self.lineEdit().setText(display_text)
+        #     #self.setEditable(False)
+
+    def getSelectedItems(self):
+        return [
+            item.text()
+            for item in self._item_lookup.values()
+            if item.checkState() == Qt.Checked
+        ]
+
+    def handleItemPressed(self, index: QModelIndex):
+        item = self.model().itemFromIndex(index)
+        if not item:
+            return
+
+        # Toggle check state
+        checked = item.checkState() == Qt.Checked
+        item.setCheckState(Qt.Unchecked if checked else Qt.Checked)
+
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -229,6 +310,7 @@ class MainWindow(QMainWindow):
             self.hide_show_tooltips()
 
         for index, worldEvent in enumerate(worldHistoryEvents):
+            
             # clean up any previous button/tooltip elements
             if worldEvent.qButton is not None:
                 worldEvent.qButton.deleteLater()
@@ -264,8 +346,6 @@ class MainWindow(QMainWindow):
         top_bar = QWidget()
         top_bar_layout = QGridLayout()
         top_bar.setLayout(top_bar_layout)
-        # top_bar.setStyleSheet(f"""QWidget {{
-        # background-color: {dark_blue};}}""" )
 
         # Add two date-input text fields
         self.startDateEntry = QLineEdit()
@@ -281,22 +361,23 @@ class MainWindow(QMainWindow):
         top_bar_layout.addWidget(dateLabel2, 0, 1, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Add four dropdown tag menus
-        self.dropdowns = []
-        labels = ["Type","Era","Culture","Region"]
+        tag_categories = ["Type","Era","Culture","Region"]
+        self.comboboxes = {} #parent combobox list
         for i in range(4):
-            #labelTagList = tagDict[labels[i]]
-            combo = QComboBox()
-            combo.addItem("All")
-            
-            for j in range(len(tagDict[labels[i]])):
-                #print(tagDict[labels[i]][j])
-                if not tagDict[labels[i]][j] in emojiDict:
-                    combo.addItem(f"{tagDict[labels[i]][j]}")
-                else:
-                     combo.addItem(f"{emojiDict[tagDict[labels[i]][j]]} {tagDict[labels[i]][j]}")
-            self.dropdowns.append(combo)
+            tag_category = tag_categories[i]
+            labelTagList = tagDict[tag_category]
+            # add emojis
+            if tag_category == "Type":
+                for j in range(len(tagDict[tag_category])):
+                    labelTagList[j] = emojiDict[tagDict[tag_category][j]] + labelTagList[j]
+
+            labelTagList.insert(0, "All")
+
+            combo = CheckableComboBox(labelTagList)
             top_bar_layout.addWidget(combo, 1, i+2)
-            tagLabel = QLabel(labels[i])
+            self.comboboxes[tag_category] = combo #add combobox to self.comboboxes dictionary
+
+            tagLabel = QLabel(tag_category)
             top_bar_layout.addWidget(tagLabel, 0, i+2, alignment=Qt.AlignmentFlag.AlignCenter)
     
         return top_bar
