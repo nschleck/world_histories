@@ -1,3 +1,5 @@
+import re
+
 worldHistoryEvents = []
 
 tagDict = {
@@ -9,6 +11,7 @@ tagDict = {
 }
 # lookup table for tag emojis
 emojiDict = {
+    "All": " ",
     "Astrological": "🔭",
     "Geological": "🌋",
     "Scientific": "🔬",
@@ -61,6 +64,30 @@ class WorldEvent:
                     f"\tCulture: {self.cultureTag}\n"
                     f"\tRegion: {self.regionTag}"
             )
+    
+    def clean(self, s):
+        #clean weird emoji / unicode inputs
+        return re.sub(r'[^\w\s]', '', s).strip()
+    
+    def is_tag_selected(self, combobox_dictionary) -> bool:
+        # Is this world event active with the given current tag filters?
+        #print(self.str_plus_tags())
+        for combobox in combobox_dictionary.values():
+            #print(combobox)
+            combobox_tags = combobox.getSelectedItems()
+
+            if "All" in combobox_tags:
+                continue
+
+            cleaned_combobox_tags = [self.clean(tag) for tag in combobox_tags]
+            cleaned_self_tags = [self.clean(tag) for tag in self.tags]
+
+            #if any(tag in combobox_tags for tag in self.tags):
+            if not set(cleaned_combobox_tags) & set(cleaned_self_tags):
+                #print("No common items found.")
+                return False
+        
+        return True
 
 class WorldSpan(WorldEvent):
     def __init__(self, name, date, tags, desc=None) -> None:

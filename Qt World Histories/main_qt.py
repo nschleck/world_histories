@@ -31,11 +31,17 @@ from PySide6.QtCore import Qt, QPoint, QRect, Signal, QModelIndex, QItemSelectio
 
 
 class PersistentTooltip(QLabel):
+    
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.SubWindow)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.adjustSize()
+
+    # TODO get this to play nice with show_custom_tooltip, hide_show_tooltips
+    # def mousePressEvent(self, event):
+    #     print("Deleting self")
+    #     self.deleteLater()  # Schedule this widget for deletion
 
 class HistoryScale(QWidget):
     def __init__(self, start_entryline: QLineEdit, end_entryline: QLineEdit, parent=None, 
@@ -186,8 +192,9 @@ class HistoryEventButton(QPushButton):
 class CheckableComboBox(QComboBox):
     selectionChanged = Signal(list)
 
-    def __init__(self, list_items, parent=None):
+    def __init__(self, list_items, name, parent=None):
         super().__init__(parent)
+        self.name = name
         self.setView(QListView())  # To allow for checkable items
         self.setModel(QStandardItemModel(self))
         self.setEditable(True)
@@ -195,19 +202,33 @@ class CheckableComboBox(QComboBox):
         self.lineEdit().setPlaceholderText("Select...")
 
         self._items = list_items
-        #self._items = ["All", "0", "1", "2", "3"]
         self._item_lookup = {}
 
         self._block_signal = False
         self.initItems()
+        # self._item_lookup["All"].setData(Qt.Checked)
         self.view().pressed.connect(self.handleItemPressed)
         self.setEditable(False)
 
+    def __str__(self):
+        return f"{self.name} CheckableComboBox  |  Active Tags: {self.getSelectedItems()}"
+
     def initItems(self):
-        for text in self._items:
-            item = QStandardItem(text)
+        for i, text in enumerate(self._items):
+            
+            # add emojis
+            if self.name == "Type":
+                emojiText = emojiDict[text] + text
+                item = QStandardItem(emojiText)
+            else:
+                item = QStandardItem(text)
+
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
             item.setData(Qt.Unchecked, Qt.CheckStateRole)
+            
+            if i == 0:  # Check "All" by default
+                item.setCheckState(Qt.Checked)
+
             self.model().appendRow(item)
             self._item_lookup[text] = item
 
@@ -248,12 +269,20 @@ class CheckableComboBox(QComboBox):
         #     #self.setEditable(False)
 
     def getSelectedItems(self):
-        return [
-            item.text()
-            for item in self._item_lookup.values()
-            if item.checkState() == Qt.Checked
-        ]
-
+        # Hacky emoji filter
+        if self.name == "Type":
+            return [
+                item.text()[1:]
+                for item in self._item_lookup.values()
+                if item.checkState() == Qt.Checked
+            ]
+        else:
+            return [
+                item.text()
+                for item in self._item_lookup.values()
+                if item.checkState() == Qt.Checked
+            ]
+        
     def handleItemPressed(self, index: QModelIndex):
         item = self.model().itemFromIndex(index)
         if not item:
@@ -262,8 +291,6 @@ class CheckableComboBox(QComboBox):
         # Toggle check state
         checked = item.checkState() == Qt.Checked
         item.setCheckState(Qt.Unchecked if checked else Qt.Checked)
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -310,7 +337,7 @@ class MainWindow(QMainWindow):
             self.hide_show_tooltips()
 
         for index, worldEvent in enumerate(worldHistoryEvents):
-            
+
             # clean up any previous button/tooltip elements
             if worldEvent.qButton is not None:
                 worldEvent.qButton.deleteLater()
@@ -318,11 +345,11 @@ class MainWindow(QMainWindow):
                     worldEvent.qButton.tooltip.deleteLater()
 
             if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
-                if (worldEvent.date < end_year) and (worldEvent.date > begin_year):
+                if (worldEvent.date < end_year) and (worldEvent.date > begin_year) and worldEvent.is_tag_selected(self.comboboxes):
                     HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
             else:
-                if (worldEvent.spanStart < end_year) and (worldEvent.spanEnd > begin_year):
+                if (worldEvent.spanStart < end_year) and (worldEvent.spanEnd > begin_year) and worldEvent.is_tag_selected(self.comboboxes):
                     #self.draw_worldEvent(worldEvent, index, worldEvent.spanStart)
                     HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
@@ -366,14 +393,15 @@ class MainWindow(QMainWindow):
         for i in range(4):
             tag_category = tag_categories[i]
             labelTagList = tagDict[tag_category]
+
             # add emojis
-            if tag_category == "Type":
-                for j in range(len(tagDict[tag_category])):
-                    labelTagList[j] = emojiDict[tagDict[tag_category][j]] + labelTagList[j]
+            # if tag_category == "Type":
+            #     for j in range(len(tagDict[tag_category])):
+            #         labelTagList[j] = emojiDict[tagDict[tag_category][j]] + labelTagList[j]
 
             labelTagList.insert(0, "All")
 
-            combo = CheckableComboBox(labelTagList)
+            combo = CheckableComboBox(labelTagList, name=tag_category)
             top_bar_layout.addWidget(combo, 1, i+2)
             self.comboboxes[tag_category] = combo #add combobox to self.comboboxes dictionary
 
