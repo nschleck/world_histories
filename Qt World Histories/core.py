@@ -65,10 +65,6 @@ class WorldEvent:
                     f"\tRegion: {self.regionTag}"
             )
     
-    # def clean(self, s):
-    #     #clean weird emoji / unicode inputs
-    #     return re.sub(r'[^\w\s]', '', s).strip()
-    
     def is_tag_selected(self, combobox_dictionary) -> bool:
         # Is this world event active with the given current tag filters?
         #print(self.str_plus_tags())

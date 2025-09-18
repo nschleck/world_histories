@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QComboBox, QPushButton, QLabel, QScrollArea, QSizePolicy
 )
 from PySide6.QtGui import (
-    QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon,
+    QIcon, QPainter, QPen, QFont, QColor, QBrush, QPolygon, QLinearGradient,
     QStandardItem, QStandardItemModel)
 from PySide6.QtCore import Qt, QPoint, QRect, Signal, QModelIndex, QItemSelectionModel
 
@@ -48,8 +48,8 @@ class HistoryScale(QWidget):
         super().__init__(parent)
         self.minor_tick = minor_tick            # Years per small tick
         self.major_tick = 5 * self.minor_tick   # Years per major tick
-        self.setFixedHeight(50)     # Scale height // really the height of the major tick
-        self.setFixedWidth(SCROLL_WIDTH)    # Scale width
+        self.setFixedHeight(40)
+        self.setFixedWidth(SCROLL_WIDTH)
         self.color = dark_blue
         self.setObjectName("history_scale_bar")
         self.setAutoFillBackground(False)
@@ -129,15 +129,75 @@ class EraScale(QWidget):
     def __init__(self, scale_bar: HistoryScale, parent=None):
         super().__init__(parent)
         self.scale_bar = scale_bar
+        self.eras_dict = {"Pre Earth" :     [-13500000000,  -4500000000], 
+                          "Early Earth" :   [-4500000000,   -4000000000], 
+                          "Early Life" :    [-4000000000,   -200000000], 
+                          "Prehistory" :    [-200000000,    -3000],
+                          "Antiquity" :     [-3000,         476],
+                          "Middle Ages" :   [476,           1500], 
+                          "Renaissance" :   [1400,          1650], 
+                          "Modern" :        [1650,          2100]}
+        self.era_colors = {}
+        self.setFixedHeight(50)
+        self.setFixedWidth(SCROLL_WIDTH)
+        self.setObjectName("era_bar")
+        self.setAutoFillBackground(False)
+
         self.get_scale_parameters()
+        self.update() # call paintEvent
 
     def get_scale_parameters(self) -> None:
         self.start_date_int = self.scale_bar.start_date_int
         self.end_date_int = self.scale_bar.end_date_int
         self.px_per_year = self.scale_bar.px_per_year
 
+    def randomize_colors(self):
+        self.era_colors = {}
+        self.update()
+
     def paintEvent(self, event):
         super().paintEvent(event)
+        self.get_scale_parameters()
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        pen = QPen(bone)
+        pen.setWidth(2)
+        painter.setPen(pen)
+        font = QFont()
+        font.setPointSize(16)
+        painter.setFont(font)
+
+        for era in self.eras_dict:
+            era_start = self.eras_dict[era][0]
+            era_end   = self.eras_dict[era][1]
+
+            if not (era_end > self.start_date_int and era_start < self.end_date_int):
+                continue #ignore off-screen eras
+
+            # Set Era color
+            if era not in self.era_colors:
+                self.era_colors[era] = random.choice(scrollarea_colors)
+            color = QColor(self.era_colors[era])
+
+            width = mapDateToScaleBar(era_end - era_start, 0, self.px_per_year)
+            height = self.height()
+            left_px_position = mapDateToScaleBar(era_start, self.start_date_int, self.px_per_year)
+
+            # Draw Era Rect
+            rect = QRect(left_px_position, 0, width, height)
+            #painter.fillRect(rect, color)
+            gradient = QLinearGradient(rect.left(), 0, rect.right(), 0)
+            gradient.setColorAt(0.0, color.darker(120))
+            gradient.setColorAt(1.0, color.lighter(120))
+            painter.fillRect(rect, gradient)
+
+            painter.drawLine(left_px_position, 0, left_px_position, height)
+
+            # Draw Era Label
+            font_pen = QPen(white)
+            painter.setPen(font_pen)
+            painter.drawText(rect, Qt.AlignCenter, era)
 
 class HistoryEventButton(QPushButton):
     def __init__(self, world_event: WorldEvent, parent, creation_index:int, scale_bar: HistoryScale):
@@ -338,7 +398,7 @@ class MainWindow(QMainWindow):
         central_layout.addWidget(self.button_panel)
         self.button_panel.setLayout(button_layout)
 
-        button_layout.addWidget(self.toggle_button)
+        button_layout.addWidget(self.rebuild_button)
         button_layout.addWidget(self.hideshow_button)
 
         # === Scrollable Content Area ===
@@ -439,11 +499,11 @@ class MainWindow(QMainWindow):
 
     def _build_buttons(self):
         btn_width = 400
-        self.toggle_button = QPushButton("Rebuild")
-        #self.toggle_button.setCheckable(True)
-        self.toggle_button.setMinimumWidth(btn_width)
-        self.toggle_button.clicked.connect(self.update_scale)
-        self.toggle_button.clicked.connect(self.update_worldEvents)
+        self.rebuild_button = QPushButton("Rebuild")
+        #self.rebuild_button.setCheckable(True)
+        self.rebuild_button.setMinimumWidth(btn_width)
+        self.rebuild_button.clicked.connect(self.update_scale)
+        self.rebuild_button.clicked.connect(self.update_worldEvents)
 
         self.hideshow_button = QPushButton("Hide ToolTips")
         self.hideshow_button.setMinimumWidth(btn_width)
@@ -461,9 +521,12 @@ class MainWindow(QMainWindow):
         scroll_content.setFixedWidth(SCROLL_WIDTH)
         scroll_content.setMinimumHeight(400)
 
-        # Build history scale bar
+        # Build history scale / era bars
         self.scale_bar = HistoryScale(start_entryline = self.startDateEntry, end_entryline = self.endDateEntry, parent=scroll_content)
-        self.scale_bar.move(0,0)
+        self.era_bar = EraScale(scale_bar=self.scale_bar, parent=scroll_content)
+        self.era_bar.move(0,0)
+        self.scale_bar.move(0,self.era_bar.height())
+        self.rebuild_button.clicked.connect(self.era_bar.randomize_colors)
 
         scroll_content.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.scroll_area.setWidget(scroll_content)

@@ -9,6 +9,7 @@ SCROLL_WIDTH = 3000
 redwood      = "#AF5D63"
 wisteria     = "#BDADEA"
 
+white        = "#FFFFFF"
 bone         = "#D3CABB"
 ash_grey     = "#B0AFA0"
 periwinkle   = "#b5beff"
@@ -17,7 +18,22 @@ dark_blue    = "#454b66"
 van_dyke     = "#322a26"
 smoky_black  = "#191308"
 
+# extra random element colors
+orange      = "#F3A712"
+red_sand    = "#E4BB97"
+lime        = "#FCFF6C"
+mint        = "#D7FFAB"
+jade        = "#44AF69"
+aqua        = '#44BBA4'
+viridian    = "#4C8577"
+sky_blue    = "#44CCFF"
+bean        = "#2F0601"
+dark_purple = "#32021F"
+
+
+
 theme_colors = [redwood, wisteria, bone, ash_grey, periwinkle, blue, dark_blue, van_dyke, smoky_black]
+scrollarea_colors = [redwood, wisteria, periwinkle, blue, orange, red_sand, lime, mint, jade, aqua, viridian, sky_blue, bean, dark_purple]
 
 # THEME COLORS
 theme_main_style_sheet = f"""
@@ -110,7 +126,7 @@ theme_main_style_sheet = f"""
         color: white;
         border: 2px solid {van_dyke};
         border-radius: 6px;
-        padding: 12px;
+        padding: 6px;
     }}
     QScrollBar:horizontal {{
         background: {ash_grey};
