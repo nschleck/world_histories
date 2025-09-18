@@ -65,9 +65,9 @@ class WorldEvent:
                     f"\tRegion: {self.regionTag}"
             )
     
-    def clean(self, s):
-        #clean weird emoji / unicode inputs
-        return re.sub(r'[^\w\s]', '', s).strip()
+    # def clean(self, s):
+    #     #clean weird emoji / unicode inputs
+    #     return re.sub(r'[^\w\s]', '', s).strip()
     
     def is_tag_selected(self, combobox_dictionary) -> bool:
         # Is this world event active with the given current tag filters?
@@ -79,8 +79,8 @@ class WorldEvent:
             if "All" in combobox_tags:
                 continue
 
-            cleaned_combobox_tags = [self.clean(tag) for tag in combobox_tags]
-            cleaned_self_tags = [self.clean(tag) for tag in self.tags]
+            cleaned_combobox_tags = [clean_string(tag) for tag in combobox_tags]
+            cleaned_self_tags = [clean_string(tag) for tag in self.tags]
 
             #if any(tag in combobox_tags for tag in self.tags):
             if not set(cleaned_combobox_tags) & set(cleaned_self_tags):
@@ -130,6 +130,10 @@ def tagChecker(list):
                 continue
             else:
                 print(f"{event.name}: unused tag - {tag}")
+
+def clean_string(s) -> str:
+    #clean weird emoji / unicode inputs
+    return re.sub(r'[^\w\s]', '', s).strip()
 
 #### Utilities ####
 def dateIntToStr(date):

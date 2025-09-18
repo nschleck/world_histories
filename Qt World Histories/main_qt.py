@@ -24,7 +24,6 @@ from PySide6.QtCore import Qt, QPoint, QRect, Signal, QModelIndex, QItemSelectio
 # TODO: prevent tooltips from overflowing the scroll_area
 # TODO: click scrollarea to kill all tooltips
 
-# TODO: implement tag filtering
 # TODO: select era tag => zoom into that time span
 # TODO: add links to wiki "learn more"
 # TODO: some indication of era in scroll area
@@ -57,10 +56,10 @@ class HistoryScale(QWidget):
 
         self.start_entryline = start_entryline
         self.end_entryline = end_entryline
+        self.start_date_int = start_date_int #default value
+        self.end_date_int = end_date_int #default value
 
-        self.start_date_int = start_date_int
-        self.end_date_int = end_date_int
-        self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
+        self.update_scale_parameters()
 
     def paintEvent(self, event): #paintEvent(self, event):       
         super().paintEvent(event)
@@ -91,14 +90,7 @@ class HistoryScale(QWidget):
         painter.end()
     
     def set_tick_spacing(self):
-        # recalculate date range, px per year
-        try:
-            self.start_date_int = dateStrToInt(self.start_entryline.text())
-            self.end_date_int = dateStrToInt(self.end_entryline.text())
-            self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
-        except:
-            print("Incompatible Date Format(s) - try again.")
-            return
+        self.update_scale_parameters()
 
         # Determine minor/major tick sizes
         scale_factor = 60   # larger factor => more spaced out ticks
@@ -117,6 +109,35 @@ class HistoryScale(QWidget):
         self.update()
 
         return
+
+    def update_scale_parameters(self):
+        try:
+            self.start_date_int = dateStrToInt(self.start_entryline.text())
+            self.end_date_int = dateStrToInt(self.end_entryline.text())
+        except:
+            print("Incompatible Date Format(s) - try again.")
+            return
+        
+        if self.start_date_int < -14000000000:
+            self.start_date_int = -14000000000
+        if self.end_date_int > 2100:
+            self.end_date_int = 2100
+
+        self.px_per_year = self.width() / (self.end_date_int - self.start_date_int)
+
+class EraScale(QWidget):
+    def __init__(self, scale_bar: HistoryScale, parent=None):
+        super().__init__(parent)
+        self.scale_bar = scale_bar
+        self.get_scale_parameters()
+
+    def get_scale_parameters(self) -> None:
+        self.start_date_int = self.scale_bar.start_date_int
+        self.end_date_int = self.scale_bar.end_date_int
+        self.px_per_year = self.scale_bar.px_per_year
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
 
 class HistoryEventButton(QPushButton):
     def __init__(self, world_event: WorldEvent, parent, creation_index:int, scale_bar: HistoryScale):
@@ -242,7 +263,7 @@ class CheckableComboBox(QComboBox):
         self._block_signal = True
         text = changed_item.text()
 
-        if text == "All":
+        if clean_string(text) == "All":
             if changed_item.checkState() == Qt.Checked:
                 # Deselect all others
                 for t, item in self._item_lookup.items():
@@ -262,11 +283,11 @@ class CheckableComboBox(QComboBox):
 
     def updateDisplayText(self):
         return
-        #     #self.setEditable(True)
-        #     selected = self.getSelectedItems()
-        #     display_text = ", ".join(selected) if selected else "Select..."
-        #     self.lineEdit().setText(display_text)
-        #     #self.setEditable(False)
+        # self.setEditable(True)
+        # selected = self.getSelectedItems()
+        # display_text = ", ".join(selected) if selected else "Select..."
+        # self.lineEdit().setText(display_text)
+        # self.setEditable(False)
 
     def getSelectedItems(self):
         # Hacky emoji filter
@@ -340,9 +361,15 @@ class MainWindow(QMainWindow):
 
             # clean up any previous button/tooltip elements
             if worldEvent.qButton is not None:
-                worldEvent.qButton.deleteLater()
+                try:
+                    worldEvent.qButton.deleteLater()
+                except RuntimeError:
+                    pass
                 if worldEvent.qButton.tooltip is not None:
-                    worldEvent.qButton.tooltip.deleteLater()
+                    try:
+                        worldEvent.qButton.tooltip.deleteLater()
+                    except RuntimeError:
+                        pass
 
             if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
                 if (worldEvent.date < end_year) and (worldEvent.date > begin_year) and worldEvent.is_tag_selected(self.comboboxes):
