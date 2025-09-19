@@ -21,26 +21,25 @@ from PySide6.QtGui import (
     QStandardItem, QStandardItemModel)
 from PySide6.QtCore import Qt, QPoint, QRect, Signal, QModelIndex, QItemSelectionModel
 
-# TODO: prevent tooltips from overflowing the scroll_area
-# TODO: click scrollarea to kill all tooltips
-
+# TODO: click scrollarea to kill all tooltips?
 # TODO: select era tag => zoom into that time span
 # TODO: add links to wiki "learn more"
-# TODO: some indication of era in scroll area
-
 
 class PersistentTooltip(QLabel):
-    
-    def __init__(self, text, parent=None):
+    def __init__(self, text: str, button, parent=None):
         super().__init__(text, parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.SubWindow)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.adjustSize()
+        self.button = button
 
-    # TODO get this to play nice with show_custom_tooltip, hide_show_tooltips
-    # def mousePressEvent(self, event):
-    #     print("Deleting self")
-    #     self.deleteLater()  # Schedule this widget for deletion
+    def mousePressEvent(self, event):
+        try:
+            self.deleteLater()  # Schedule this widget for deletion
+        except RuntimeError:
+            pass
+        self.button.tooltip = None  #Update button
+        self.update()
 
 class HistoryScale(QWidget):
     def __init__(self, start_entryline: QLineEdit, end_entryline: QLineEdit, parent=None, 
@@ -224,14 +223,7 @@ class HistoryEventButton(QPushButton):
 
     def draw(self):
         self.x_pos = mapDateToScaleBar(self.start_date, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
-        self.y_pos = random.randrange(50,150)
-
-        # Set random button color TODO get this to work
-        # tint = random.randrange(100, 130)
-        # color = QColor(random.choice(theme_colors)).lighter(tint)
-        # self.setObjectName(f"colorButton{self.creation_index}")
-        # self.setStyleSheet(f"""HistoryEventButton#colorButton{self.creation_index} {{
-        #                                     background-color: {color};}}""")
+        self.y_pos = random.randrange(90,300)
 
         if isinstance(self.world_event, WorldSpan):
             x_pos_right_edge = mapDateToScaleBar(self.world_event.spanEnd, self.scale_bar.start_date_int, self.scale_bar.px_per_year)
@@ -261,13 +253,25 @@ class HistoryEventButton(QPushButton):
         painter.end()
 
     def show_custom_tooltip(self):
-        if self.tooltip and self.tooltip.isVisible():
-            self.tooltip.hide()
-            return
+        if self.tooltip:
+            if self.tooltip.isVisible():
+                self.tooltip.hide()
+                return
 
-        self.tooltip = PersistentTooltip(str(self.world_event), parent=self.scroll_content)
+        self.tooltip = PersistentTooltip(str(self.world_event), button = self, parent=self.scroll_content)
         local_pos = self.mapTo(self.scroll_content, QPoint(0, self.height()))
         self.tooltip.move(local_pos)
+
+        #Adjust off-screen tooltips
+        right_edge = self.tooltip.geometry().right()
+        left_edge = self.tooltip.geometry().left()
+
+        if right_edge > SCROLL_WIDTH:
+            overlap_px = right_edge - SCROLL_WIDTH
+            self.tooltip.move(self.tooltip.x() - overlap_px, self.tooltip.y())
+        if left_edge < 0:
+            self.tooltip.move(0, self.tooltip.y())
+
         self.tooltip.show()
 
 class CheckableComboBox(QComboBox):
@@ -431,15 +435,20 @@ class MainWindow(QMainWindow):
                     except RuntimeError:
                         pass
 
+            # TODO clean up this logic structure
             if isinstance(worldEvent, WorldEvent) and not isinstance(worldEvent,WorldSpan):
                 if (worldEvent.date < end_year) and (worldEvent.date > begin_year) and worldEvent.is_tag_selected(self.comboboxes):
-                    HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
+                    button = HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
+                    color = random.choice(scrollarea_colors)
+                    button.setStyleSheet(f"background-color: {color};")
             else:
                 if (worldEvent.spanStart < end_year) and (worldEvent.spanEnd > begin_year) and worldEvent.is_tag_selected(self.comboboxes):
                     #self.draw_worldEvent(worldEvent, index, worldEvent.spanStart)
-                    HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
+                    button = HistoryEventButton(worldEvent, self.scroll_content, index, self.scale_bar)
                     self.active_world_events.append(worldEvent)
+                    color = random.choice(scrollarea_colors)
+                    button.setStyleSheet(f"background-color: {color};")
 
     def hide_show_tooltips(self):       
         self.hidden_tooltips = not self.hidden_tooltips #invert boolean
